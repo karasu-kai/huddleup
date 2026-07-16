@@ -38,6 +38,8 @@ Enter your display name on first visit. Your session is stored server-side in `.
 
 No env vars required.
 
+**After a deploy:** If you still see old colours or the old logo once, hard-refresh the page (or clear site data if you added Huddle Up to your home screen). The app now sends no-cache headers so future visits should always pick up the latest version.
+
 ## Project structure
 
 ```
