@@ -19,7 +19,12 @@ npm install
 npm run dev
 ```
 
-Enter your display name on first visit. Your session is stored server-side in `.data/db.json`.
+On first visit, enter your display name and **save your 8-character personal code**. That code is your permanent identity — use it to sign back in on a new browser or after your cookie expires.
+
+- **Personal code** (8 chars) — restores your identity so you don't appear as a new collaborator
+- **Project invite code** (6 chars) — lets someone join a specific list
+
+Sessions are stored server-side in `.data/db.json` via HTTP-only cookies.
 
 ## Hostinger deploy
 

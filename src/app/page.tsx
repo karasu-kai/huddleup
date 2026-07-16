@@ -4,17 +4,32 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectWithMeta } from "@/lib/types";
 import type { MemberIdentity } from "@/lib/types";
-import { createSession, fetchSession } from "@/lib/member";
+import {
+  createSession,
+  fetchSession,
+  loginWithCode,
+  logoutSession,
+} from "@/lib/member";
 import { api, formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Label } from "@/components/ui/Input";
 import { Sheet } from "@/components/ui/Sheet";
+import { Logo } from "@/components/Logo";
+
+type OnboardingMode = "welcome" | "new" | "returning";
 
 export default function HomePage() {
   const router = useRouter();
   const [member, setMember] = useState<MemberIdentity | null>(null);
   const [nameInput, setNameInput] = useState("");
+  const [codeInput, setCodeInput] = useState("");
+  const [onboardingMode, setOnboardingMode] = useState<OnboardingMode>("welcome");
+  const [authError, setAuthError] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [showSaveCode, setShowSaveCode] = useState(false);
+  const [newUserCode, setNewUserCode] = useState("");
+  const [copied, setCopied] = useState(false);
   const [projects, setProjects] = useState<ProjectWithMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -38,12 +53,60 @@ export default function HomePage() {
     }
   }
 
-  async function handleSetName(e: React.FormEvent) {
+  async function handleCreateAccount(e: React.FormEvent) {
     e.preventDefault();
     if (!nameInput.trim()) return;
-    const m = await createSession(nameInput);
-    setMember(m);
-    loadProjects();
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const { member: m, isNew } = await createSession(nameInput);
+      setMember(m);
+      if (isNew && m.userCode) {
+        setNewUserCode(m.userCode);
+        setShowSaveCode(true);
+      }
+      loadProjects();
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Could not sign in");
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  async function handleLoginWithCode(e: React.FormEvent) {
+    e.preventDefault();
+    if (!codeInput.trim()) return;
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const { member: m } = await loginWithCode(codeInput);
+      setMember(m);
+      loadProjects();
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : "Invalid code");
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  async function handleCopyCode(code: string) {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
+  async function handleSignOut() {
+    await logoutSession();
+    setMember(null);
+    setProjects([]);
+    setOnboardingMode("welcome");
+    setNameInput("");
+    setCodeInput("");
+    setLoading(false);
   }
 
   if (!member) {
@@ -54,19 +117,87 @@ export default function HomePage() {
           <p className="mt-3 text-sm text-text-secondary">
             Shared lists for anything you&apos;re planning together.
           </p>
-          <form onSubmit={handleSetName} className="mt-8 space-y-4 text-left">
-            <Label>Your name</Label>
-            <Input
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              placeholder="Alex"
-              autoFocus
-              required
-            />
-            <Button type="submit" className="w-full" size="lg">
-              Get started
-            </Button>
-          </form>
+
+          {onboardingMode === "welcome" && (
+            <div className="mt-8 space-y-3">
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={() => {
+                  setOnboardingMode("new");
+                  setAuthError("");
+                }}
+              >
+                Get started
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full"
+                size="lg"
+                onClick={() => {
+                  setOnboardingMode("returning");
+                  setAuthError("");
+                }}
+              >
+                I have a personal code
+              </Button>
+            </div>
+          )}
+
+          {onboardingMode === "new" && (
+            <form onSubmit={handleCreateAccount} className="mt-8 space-y-4 text-left">
+              <Label>Your name</Label>
+              <Input
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                placeholder="Alex"
+                autoFocus
+                required
+              />
+              {authError && <p className="text-sm text-warning">{authError}</p>}
+              <Button type="submit" className="w-full" size="lg" disabled={authLoading}>
+                {authLoading ? "Creating..." : "Continue"}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setOnboardingMode("welcome")}
+                className="w-full text-sm text-text-secondary hover:text-text-primary"
+              >
+                Back
+              </button>
+            </form>
+          )}
+
+          {onboardingMode === "returning" && (
+            <form onSubmit={handleLoginWithCode} className="mt-8 space-y-4 text-left">
+              <div>
+                <Label>Personal code</Label>
+                <p className="mt-1 text-xs text-text-tertiary">
+                  Your 8-character code from when you first signed up.
+                </p>
+              </div>
+              <Input
+                value={codeInput}
+                onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
+                placeholder="AB12CD34"
+                className="text-center text-lg tracking-widest uppercase"
+                maxLength={8}
+                autoFocus
+                required
+              />
+              {authError && <p className="text-sm text-warning">{authError}</p>}
+              <Button type="submit" className="w-full" size="lg" disabled={authLoading}>
+                {authLoading ? "Signing in..." : "Sign in"}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setOnboardingMode("welcome")}
+                className="w-full text-sm text-text-secondary hover:text-text-primary"
+              >
+                Back
+              </button>
+            </form>
+          )}
         </div>
       </div>
     );
@@ -75,9 +206,33 @@ export default function HomePage() {
   return (
     <div className="mx-auto min-h-full max-w-lg bg-canvas">
       <header className="sticky top-0 z-10 border-b border-border bg-canvas/95 px-4 py-4 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <Logo compact />
-          <span className="text-sm text-text-secondary">{member.displayName}</span>
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleCopyCode(member.userCode)}
+              className="flex min-w-0 items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-muted"
+              title="Copy your personal code"
+            >
+              <span className="truncate">{member.displayName}</span>
+              <span className="shrink-0 tabular-nums tracking-wider text-text-tertiary">
+                {member.userCode}
+              </span>
+              {copied ? (
+                <span className="shrink-0 text-text-primary">✓</span>
+              ) : (
+                <span className="shrink-0 text-text-tertiary">⎘</span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="shrink-0 text-xs text-text-tertiary hover:text-text-secondary"
+            >
+              Out
+            </button>
+          </div>
         </div>
       </header>
 
@@ -149,43 +304,61 @@ export default function HomePage() {
         )}
       </main>
 
-      {member && (
-        <>
-          <CreateProjectSheet
-            open={showCreate}
-            onClose={() => setShowCreate(false)}
-            member={member}
-            onCreated={(id) => {
-              loadProjects();
-              router.push(`/project/${id}`);
-            }}
-          />
-          <JoinProjectSheet
-            open={showJoin}
-            onClose={() => setShowJoin(false)}
-            member={member}
-            onJoined={(id) => {
-              loadProjects();
-              router.push(`/project/${id}`);
-            }}
-          />
-        </>
-      )}
+      <Sheet
+        open={showSaveCode}
+        onClose={() => setShowSaveCode(false)}
+        title="Save your personal code"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary">
+            This is your permanent identity in Huddle Up. Save it somewhere safe — you&apos;ll
+            need it if you switch browsers or your session expires.
+          </p>
+          <div className="rounded-2xl bg-surface-muted px-4 py-5 text-center">
+            <p className="text-2xl font-semibold tracking-[0.2em] text-text-primary">
+              {newUserCode}
+            </p>
+          </div>
+          <Button className="w-full" onClick={() => handleCopyCode(newUserCode)}>
+            {copied ? "Copied!" : "Copy code"}
+          </Button>
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => setShowSaveCode(false)}
+          >
+            I&apos;ve saved it
+          </Button>
+        </div>
+      </Sheet>
+
+      <CreateProjectSheet
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        onCreated={(id) => {
+          loadProjects();
+          router.push(`/project/${id}`);
+        }}
+      />
+      <JoinProjectSheet
+        open={showJoin}
+        onClose={() => setShowJoin(false)}
+        onJoined={(id) => {
+          loadProjects();
+          router.push(`/project/${id}`);
+        }}
+      />
     </div>
   );
 }
 
-import { Logo } from "@/components/Logo";
-
 function CreateProjectSheet({
   open,
   onClose,
-  member,
   onCreated,
 }: {
   open: boolean;
   onClose: () => void;
-  member: MemberIdentity;
   onCreated: (id: string) => void;
 }) {
   const [name, setName] = useState("");
@@ -244,12 +417,10 @@ function CreateProjectSheet({
 function JoinProjectSheet({
   open,
   onClose,
-  member,
   onJoined,
 }: {
   open: boolean;
   onClose: () => void;
-  member: MemberIdentity;
   onJoined: (id: string) => void;
 }) {
   const [code, setCode] = useState("");
