@@ -154,8 +154,11 @@ export function AddItemSheet({
           <Textarea
             value={form.notes}
             onChange={(e) => update("notes", e.target.value)}
-            placeholder="Get the white one, check IKEA first..."
+            placeholder="Size, color, timing, who to ask..."
           />
+          <p className="mt-1 text-xs text-text-tertiary">
+            Shown in the Comments section on the item card.
+          </p>
         </div>
 
         <div>

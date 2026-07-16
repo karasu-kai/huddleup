@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Comment, Item, ProjectMember, Vote } from "@/lib/types";
 import { formatCurrency, cn } from "@/lib/utils";
 import { Card } from "./ui/Card";
@@ -35,6 +36,9 @@ export function ItemCard({
   const myVote = votes.find((v) => v.memberId === memberId)?.vote;
   const creator = members.find((m) => m.memberId === item.createdBy);
   const itemComments = comments.filter((c) => c.itemId === item.id);
+  const hasCommentsContent = Boolean(item.notes || itemComments.length > 0);
+
+  const [commentsOpen, setCommentsOpen] = useState(hasCommentsContent);
 
   return (
     <Card muted={item.done} className="group">
@@ -72,7 +76,7 @@ export function ItemCard({
             >
               {item.name}
             </p>
-            <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="flex shrink-0 gap-1 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
               <button
                 onClick={onEdit}
                 className="rounded-lg px-2 py-1 text-xs text-text-tertiary hover:bg-surface-muted hover:text-text-primary"
@@ -107,10 +111,6 @@ export function ItemCard({
             </a>
           )}
 
-          {item.notes && (
-            <p className="mt-2 text-sm text-text-secondary">{item.notes}</p>
-          )}
-
           {item.imageUrl && (
             <img
               src={item.imageUrl}
@@ -135,6 +135,25 @@ export function ItemCard({
               >
                 👎 {down > 0 && <span className="tabular-nums text-xs">{down}</span>}
               </VoteButton>
+              <button
+                type="button"
+                onClick={() => setCommentsOpen((open) => !open)}
+                className={cn(
+                  "flex items-center gap-1 rounded-lg px-2 py-1 text-sm transition-colors",
+                  commentsOpen
+                    ? "bg-neon/25 ring-1 ring-neon text-text-primary"
+                    : "text-text-secondary hover:bg-surface-muted",
+                )}
+                aria-expanded={commentsOpen}
+                aria-label="Toggle comments"
+              >
+                💬
+                {(itemComments.length > 0 || item.notes) && (
+                  <span className="tabular-nums text-xs">
+                    {itemComments.length + (item.notes ? 1 : 0)}
+                  </span>
+                )}
+              </button>
             </div>
             {creator && (
               <div className="ml-auto flex items-center gap-1.5">
@@ -143,18 +162,39 @@ export function ItemCard({
             )}
           </div>
 
-          {itemComments.length > 0 && (
-            <div className="mt-3 space-y-2 border-t border-border pt-3">
-              {itemComments.map((c) => (
-                <div key={c.id} className="flex gap-2 text-sm">
-                  <span className="font-medium text-text-primary">{c.memberName}</span>
-                  <span className="text-text-secondary">{c.text}</span>
+          {commentsOpen && (
+            <div className="mt-3 rounded-xl border border-border bg-surface-muted/60 p-3">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-text-secondary">
+                Comments
+              </p>
+
+              {item.notes && (
+                <div className="mb-3 rounded-lg bg-surface px-3 py-2">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-text-tertiary">
+                    Note
+                  </p>
+                  <p className="mt-1 text-sm text-text-secondary">{item.notes}</p>
                 </div>
-              ))}
+              )}
+
+              {itemComments.length > 0 ? (
+                <div className="space-y-2">
+                  {itemComments.map((c) => (
+                    <div key={c.id} className="rounded-lg bg-surface px-3 py-2">
+                      <p className="text-xs font-medium text-text-primary">{c.memberName}</p>
+                      <p className="mt-0.5 text-sm text-text-secondary">{c.text}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                !item.notes && (
+                  <p className="mb-2 text-sm text-text-tertiary">No comments yet.</p>
+                )
+              )}
+
+              <CommentInput onSubmit={onAddComment} />
             </div>
           )}
-
-          <CommentInput onSubmit={onAddComment} />
         </div>
       </div>
     </Card>
@@ -191,7 +231,7 @@ function VoteButton({
 function CommentInput({ onSubmit }: { onSubmit: (text: string) => void }) {
   return (
     <form
-      className="mt-2"
+      className="mt-3"
       onSubmit={(e) => {
         e.preventDefault();
         const input = e.currentTarget.elements.namedItem("comment") as HTMLInputElement;
@@ -204,7 +244,7 @@ function CommentInput({ onSubmit }: { onSubmit: (text: string) => void }) {
       <input
         name="comment"
         placeholder="Add a comment..."
-        className="h-9 w-full rounded-lg border border-transparent bg-surface-muted px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:border-border focus:outline-none"
+        className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:border-text-primary focus:outline-none"
       />
     </form>
   );
