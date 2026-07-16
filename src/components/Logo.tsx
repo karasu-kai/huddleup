@@ -1,36 +1,64 @@
 "use client";
 
-function UpMark() {
+import { cn } from "@/lib/utils";
+
+/** Classic house: triangle roof + rectangular body, neon UP inside. */
+function HouseUpIcon({ size }: { size: number }) {
+  const height = Math.round(size * 1.15);
   return (
-    <span className="relative inline-flex h-[0.92em] w-[0.78em] shrink-0 translate-y-[0.06em] items-center justify-center">
-      <svg
-        viewBox="0 0 52 60"
-        className="absolute inset-0 h-full w-full"
-        aria-hidden
+    <svg
+      width={size}
+      height={height}
+      viewBox="0 0 80 92"
+      className="shrink-0"
+      aria-hidden
+    >
+      <path fill="#121212" d="M40 4 74 42H6L40 4z" />
+      <path fill="#121212" d="M14 42h52v46H14V42z" />
+      <text
+        x="40"
+        y="68"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="#C8FF00"
+        fontSize="22"
+        fontWeight="800"
+        fontFamily="var(--font-geist-sans), system-ui, sans-serif"
+        letterSpacing="0.06em"
       >
-        {/* Up-pointing triangle roof — wider than the body */}
-        <path fill="#121212" d="M26 1 50 29H2L26 1z" />
-        {/* Rectangular house body below the roof */}
-        <path fill="#121212" d="M8 29h36v29H8V29z" />
-      </svg>
-      <span className="relative z-10 translate-y-[22%] text-[0.34em] font-extrabold leading-none tracking-tight text-[#C8FF00]">
-        Up
-      </span>
-    </span>
+        UP
+      </text>
+    </svg>
   );
 }
 
-export function Logo({ compact }: { compact?: boolean }) {
+export function Logo({
+  compact,
+  centered,
+}: {
+  compact?: boolean;
+  centered?: boolean;
+}) {
+  const houseSize = compact ? 40 : 64;
+
   return (
-    <h1
-      className={
-        compact
-          ? "flex items-baseline gap-0.5 text-xl font-bold tracking-tight"
-          : "flex items-baseline gap-1 text-3xl font-bold tracking-tight"
-      }
+    <div
+      className={cn(
+        "inline-flex items-center gap-2.5 sm:gap-3",
+        centered && "justify-center",
+      )}
+      role="img"
+      aria-label="Huddle Up"
     >
-      <span className="text-text-primary">Huddle</span>
-      <UpMark />
-    </h1>
+      <span
+        className={cn(
+          "font-bold uppercase tracking-[0.06em] text-text-primary",
+          compact ? "text-lg sm:text-xl" : "text-3xl sm:text-[2.5rem]",
+        )}
+      >
+        Huddle
+      </span>
+      <HouseUpIcon size={houseSize} />
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Label } from "@/components/ui/Input";
 import { Sheet } from "@/components/ui/Sheet";
+import { Logo } from "@/components/Logo";
 
 export default function HomePage() {
   const router = useRouter();
@@ -48,13 +49,13 @@ export default function HomePage() {
 
   if (!member) {
     return (
-      <div className="flex min-h-full flex-col items-center justify-center bg-canvas px-6">
-        <div className="w-full max-w-sm text-center">
-          <Logo />
-          <p className="mt-3 text-sm text-text-secondary">
+      <div className="flex min-h-full flex-col items-center justify-center bg-canvas px-6 py-12">
+        <div className="w-full max-w-md text-center">
+          <Logo centered />
+          <p className="mx-auto mt-5 max-w-xs text-base leading-relaxed text-text-secondary sm:mt-6 sm:max-w-sm sm:text-lg">
             Shared lists for anything you&apos;re planning together.
           </p>
-          <form onSubmit={handleSetName} className="mt-8 space-y-4 text-left">
+          <form onSubmit={handleSetName} className="mx-auto mt-10 max-w-sm space-y-4 text-left sm:mt-12">
             <Label>Your name</Label>
             <Input
               value={nameInput}
@@ -74,10 +75,13 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto min-h-full max-w-lg bg-canvas">
-      <header className="sticky top-0 z-10 border-b border-border bg-canvas/95 px-4 py-4 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
-          <Logo compact />
-          <span className="text-sm text-text-secondary">{member.displayName}</span>
+      <header className="sticky top-0 z-10 border-b border-border bg-canvas/95 px-4 py-3 backdrop-blur-sm sm:py-4">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+          <div />
+          <Logo compact centered />
+          <span className="truncate text-right text-sm text-text-secondary">
+            {member.displayName}
+          </span>
         </div>
       </header>
 
@@ -174,8 +178,6 @@ export default function HomePage() {
     </div>
   );
 }
-
-import { Logo } from "@/components/Logo";
 
 function CreateProjectSheet({
   open,
