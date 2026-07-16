@@ -3,20 +3,22 @@
 function UpMark({ compact }: { compact?: boolean }) {
   return (
     <svg
-      viewBox="0 0 48 52"
+      viewBox="0 0 48 56"
       className={
         compact
-          ? "inline-block h-7 w-8 shrink-0"
-          : "inline-block h-10 w-11 shrink-0"
+          ? "inline-block h-8 w-[1.85rem] shrink-0"
+          : "inline-block h-11 w-10 shrink-0"
       }
       aria-hidden
     >
-      {/* Black house — peaked roof points up */}
-      <path fill="#121212" d="M24 3 45 22v29H3V22L24 3z" />
+      {/* Triangle roof — solid up arrow */}
+      <path fill="#121212" d="M24 2 44 24H4L24 2z" />
+      {/* Rectangular house body */}
+      <path fill="#121212" d="M4 24h40v28H4V24z" />
       {/* Neon Up inside the house body */}
       <text
         x="24"
-        y="37"
+        y="40"
         textAnchor="middle"
         dominantBaseline="middle"
         fill="#C8FF00"
