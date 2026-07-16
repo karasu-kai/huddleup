@@ -1,35 +1,33 @@
 "use client";
 
-function UpBadge({ compact }: { compact?: boolean }) {
+function UpMark({ compact }: { compact?: boolean }) {
   return (
-    <span
+    <svg
+      viewBox="0 0 48 52"
       className={
         compact
-          ? "relative inline-flex h-7 w-8 shrink-0 items-center justify-center"
-          : "relative inline-flex h-10 w-11 shrink-0 items-center justify-center"
+          ? "inline-block h-7 w-8 shrink-0"
+          : "inline-block h-10 w-11 shrink-0"
       }
+      aria-hidden
     >
-      <svg
-        viewBox="0 0 44 48"
-        className="absolute inset-0 h-full w-full"
-        aria-hidden
-      >
-        {/* Up arrow with house base — black mark behind the word */}
-        <path
-          fill="#121212"
-          d="M22 2 40 22 31 22 31 46 13 46 13 22 4 22Z"
-        />
-      </svg>
-      <span
-        className={
-          compact
-            ? "relative z-10 text-[10px] font-extrabold leading-none tracking-tight text-neon"
-            : "relative z-10 text-sm font-extrabold leading-none tracking-tight text-neon"
-        }
+      {/* Black house — peaked roof points up */}
+      <path fill="#121212" d="M24 3 45 22v29H3V22L24 3z" />
+      {/* Neon Up inside the house body */}
+      <text
+        x="24"
+        y="37"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="#C8FF00"
+        fontSize={compact ? 11 : 14}
+        fontWeight="800"
+        fontFamily="var(--font-geist-sans), system-ui, sans-serif"
+        letterSpacing="-0.02em"
       >
         Up
-      </span>
-    </span>
+      </text>
+    </svg>
   );
 }
 
@@ -38,12 +36,12 @@ export function Logo({ compact }: { compact?: boolean }) {
     <h1
       className={
         compact
-          ? "flex items-center gap-1 text-xl font-bold tracking-tight"
-          : "flex items-center gap-1.5 text-3xl font-bold tracking-tight"
+          ? "flex items-baseline gap-0.5 text-xl font-bold tracking-tight"
+          : "flex items-baseline gap-1 text-3xl font-bold tracking-tight"
       }
     >
       <span className="text-text-primary">Huddle</span>
-      <UpBadge compact={compact} />
+      <UpMark compact={compact} />
     </h1>
   );
 }
