@@ -14,7 +14,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "app-card p-4",
+        "app-card min-w-0 overflow-hidden p-4",
         muted && "border-border/80 bg-surface-muted",
         className,
       )}
