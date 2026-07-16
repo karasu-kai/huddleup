@@ -1,10 +1,10 @@
 {
   "name": "Huddle Up",
   "short_name": "HuddleUp",
-  "description": "Mobile-first shared lists",
+  "description": "Shared lists for anything you're planning together.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#14b896",
-  "icons": []
+  "background_color": "#E8E8E4",
+  "theme_color": "#E8E8E4",
+  "orientation": "portrait"
 }

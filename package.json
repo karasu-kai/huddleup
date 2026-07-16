@@ -1,6 +1,6 @@
 {
   "name": "huddleup",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -8,23 +8,28 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start -p ${PORT:-3000}",
+    "lint": "eslint"
   },
   "dependencies": {
-    "next": "^16.2.10",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "uuid": "^11.1.0"
+    "autoprefixer": "^10.5.3",
+    "next": "16.2.10",
+    "postcss": "^8.5.19",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwindcss": "^3.4.19",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "@types/node": "^22.15.21",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5",
-    "@types/uuid": "^10.0.0",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.4",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3"
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^11.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "@next/swc-wasm-nodejs": "^16.2.10"
   }
 }

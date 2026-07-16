@@ -1,0 +1,211 @@
+"use client";
+
+import type { Comment, Item, ProjectMember, Vote } from "@/lib/types";
+import { formatCurrency, cn } from "@/lib/utils";
+import { Card } from "./ui/Card";
+import { Avatar } from "./Avatar";
+
+type ItemCardProps = {
+  item: Item;
+  votes: Vote[];
+  comments: Comment[];
+  members: ProjectMember[];
+  memberId: string;
+  onToggle: () => void;
+  onVote: (vote: 1 | -1 | 0) => void;
+  onAddComment: (text: string) => void;
+  onEdit: () => void;
+  onDelete: () => void;
+};
+
+export function ItemCard({
+  item,
+  votes,
+  comments,
+  members,
+  memberId,
+  onToggle,
+  onVote,
+  onAddComment,
+  onEdit,
+  onDelete,
+}: ItemCardProps) {
+  const up = votes.filter((v) => v.vote === 1).length;
+  const down = votes.filter((v) => v.vote === -1).length;
+  const myVote = votes.find((v) => v.memberId === memberId)?.vote;
+  const creator = members.find((m) => m.memberId === item.createdBy);
+  const itemComments = comments.filter((c) => c.itemId === item.id);
+
+  return (
+    <Card muted={item.done} className="group">
+      <div className="flex gap-3">
+        <button
+          onClick={onToggle}
+          className={cn(
+            "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
+            item.done
+              ? "border-neon bg-neon text-text-primary"
+              : "border-border bg-surface hover:border-text-tertiary",
+          )}
+          aria-label={item.done ? "Mark incomplete" : "Mark complete"}
+        >
+          {item.done && (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path
+                d="M2.5 7L5.5 10L11.5 4"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </button>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p
+              className={cn(
+                "font-medium leading-snug",
+                item.done && "text-text-secondary line-through",
+              )}
+            >
+              {item.name}
+            </p>
+            <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <button
+                onClick={onEdit}
+                className="rounded-lg px-2 py-1 text-xs text-text-tertiary hover:bg-surface-muted hover:text-text-primary"
+              >
+                Edit
+              </button>
+              <button
+                onClick={onDelete}
+                className="rounded-lg px-2 py-1 text-xs text-text-tertiary hover:bg-surface-muted hover:text-warning"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          {(item.cost != null || item.budget != null) && (
+            <p className="mt-1 tabular-nums text-sm text-text-secondary">
+              {item.cost != null && formatCurrency(item.cost)}
+              {item.cost != null && item.budget != null && " · "}
+              {item.budget != null && `budget ${formatCurrency(item.budget)}`}
+            </p>
+          )}
+
+          {item.url && (
+            <a
+              href={item.url.startsWith("http") ? item.url : `https://${item.url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1.5 inline-block truncate text-sm text-text-secondary underline decoration-border underline-offset-2 hover:text-text-primary"
+            >
+              {item.url.replace(/^https?:\/\//, "")}
+            </a>
+          )}
+
+          {item.notes && (
+            <p className="mt-2 text-sm text-text-secondary">{item.notes}</p>
+          )}
+
+          {item.imageUrl && (
+            <img
+              src={item.imageUrl}
+              alt=""
+              className="mt-3 max-h-40 w-full rounded-xl object-cover"
+            />
+          )}
+
+          <div className="mt-3 flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <VoteButton
+                active={myVote === 1}
+                onClick={() => onVote(myVote === 1 ? 0 : 1)}
+                label="Upvote"
+              >
+                👍 {up > 0 && <span className="tabular-nums text-xs">{up}</span>}
+              </VoteButton>
+              <VoteButton
+                active={myVote === -1}
+                onClick={() => onVote(myVote === -1 ? 0 : -1)}
+                label="Downvote"
+              >
+                👎 {down > 0 && <span className="tabular-nums text-xs">{down}</span>}
+              </VoteButton>
+            </div>
+            {creator && (
+              <div className="ml-auto flex items-center gap-1.5">
+                <Avatar name={creator.displayName} color={creator.color} />
+              </div>
+            )}
+          </div>
+
+          {itemComments.length > 0 && (
+            <div className="mt-3 space-y-2 border-t border-border pt-3">
+              {itemComments.map((c) => (
+                <div key={c.id} className="flex gap-2 text-sm">
+                  <span className="font-medium text-text-primary">{c.memberName}</span>
+                  <span className="text-text-secondary">{c.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <CommentInput onSubmit={onAddComment} />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function VoteButton({
+  children,
+  active,
+  onClick,
+  label,
+}: {
+  children: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      className={cn(
+        "flex items-center gap-1 rounded-lg px-2 py-1 text-sm transition-colors",
+        active
+          ? "bg-neon/30 ring-1 ring-neon"
+          : "text-text-secondary hover:bg-surface-muted",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function CommentInput({ onSubmit }: { onSubmit: (text: string) => void }) {
+  return (
+    <form
+      className="mt-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const input = e.currentTarget.elements.namedItem("comment") as HTMLInputElement;
+        if (input.value.trim()) {
+          onSubmit(input.value.trim());
+          input.value = "";
+        }
+      }}
+    >
+      <input
+        name="comment"
+        placeholder="Add a comment..."
+        className="h-9 w-full rounded-lg border border-transparent bg-surface-muted px-3 text-sm text-text-primary placeholder:text-text-tertiary focus:border-border focus:outline-none"
+      />
+    </form>
+  );
+}

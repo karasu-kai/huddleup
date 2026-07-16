@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: #e8e8e4;
+  --surface: #ffffff;
+  --surface-muted: #f3f3f0;
+  --border: #d4d4d0;
+  --text-primary: #121212;
+  --text-secondary: #6b6b68;
+  --text-tertiary: #9c9c98;
+  --neon: #c8ff00;
+  --neon-pressed: #a8d900;
+  --warning: #ff4757;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  @apply bg-canvas text-text-primary font-sans antialiased;
+  min-height: 100%;
+  overscroll-behavior: none;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.sheet-backdrop {
+  background: rgba(18, 18, 18, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

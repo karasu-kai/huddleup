@@ -1,40 +1,60 @@
 # Huddle Up
 
-Mobile-first shared list app. Create named projects, organize items into custom tabs, and collaborate via 6-character invite codes.
-
-## Stack
-
-- **Next.js** (App Router, webpack build)
-- **Node.js 20**
-- **Tailwind CSS 3**
-- **File DB** at `.data/db.json` (requires persistent server)
+Shared lists for anything you're planning together — moves, trips, events, renos, and more.
 
 ## Features
 
-- Named projects with 6-char invite codes
-- Custom sections/tabs per project
-- Items: checkbox, cost, budget, URL, photo, comments, thumbs up
-- Auto-save on every change
+- **Named projects** — create a board for anything
+- **Custom sections** — name your own tabs (Kitchen, Trip, Gear…)
+- **Multi-participant** — share a 6-character invite code
+- **Items** — checkbox, cost, budget, URL, photo, notes
+- **Group decisions** — thumbs up/down + comments
+- **Budget tracking** — per-item and overall project tally
+- **Mobile-first** — matte neutral UI with neon accents
 
-## Scripts
+## Quick start
 
 ```bash
 npm install
-npm run dev      # local dev (webpack)
-npm run build    # production build
-npm run start    # production server
+npm run dev
 ```
 
-## Hostinger deploy
+Open [http://localhost:3000](http://localhost:3000) on your phone or desktop.
 
-| Setting | Value |
-|---------|-------|
-| Build | `npm run build` |
-| Start | `npm run start` |
-| Node | **20** |
+### Using with your partner
 
-Ensure `.data/` persists across redeploys so list data is not lost.
+1. One person creates a project and gets an **invite code**
+2. Share the code — others tap **Join code** on the home screen
+3. Everyone sees the same list (auto-refreshes every 3 seconds)
 
-## Domain
+### Add to home screen (iOS)
 
-[huddleup.wtf](https://huddleup.wtf)
+Safari → Share → **Add to Home Screen** for an app-like experience.
+
+## Project structure
+
+```
+src/
+  app/           # Pages + API routes
+  components/    # UI components
+  lib/           # Types, utils, local DB
+.data/           # JSON database (auto-created, gitignored)
+public/uploads/  # Uploaded images (gitignored)
+```
+
+## Deploying
+
+This app uses a local JSON file for storage — perfect for running on a single machine or VPS. For serverless (Vercel), upgrade to Supabase or a hosted database.
+
+Run in production:
+
+```bash
+npm run build
+npm start
+```
+
+## Design
+
+- **Canvas:** `#E8E8E4` matte stone
+- **Accent:** `#C8FF00` electric lime
+- **Cards:** white, crisp borders, iOS-like feel
