@@ -2,6 +2,7 @@ export type User = {
   id: string;
   displayName: string;
   color: string;
+  userCode: string;
   createdAt: string;
 };
 
@@ -83,6 +84,7 @@ export type MemberIdentity = {
   id: string;
   displayName: string;
   color: string;
+  userCode: string;
 };
 
 export type ProjectWithMeta = Project & {
