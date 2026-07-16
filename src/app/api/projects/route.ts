@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server";
+import { useSupabaseDb } from "@/lib/supabase/admin";
+import { requireApiUser, isAuthError } from "@/lib/auth";
+import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb, generateInviteCode } from "@/lib/db/local";
 import type { Project, ProjectMember, Tab } from "@/lib/types";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+    const projects = await supabaseDb.listProjectsForUser(auth.user.id);
+    return NextResponse.json(projects);
+  }
+
   const memberId = searchParams.get("memberId");
   const db = await readDb();
 
@@ -35,6 +46,26 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const body = await request.json();
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    if (!body.name?.trim()) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const result = await supabaseDb.createProject({
+      name: body.name,
+      overallBudget: body.overallBudget ?? null,
+      userId: auth.user.id,
+      displayName: auth.member.displayName,
+      color: auth.member.color,
+    });
+
+    return NextResponse.json(result);
+  }
+
   const { name, overallBudget, memberId, displayName, color } = body;
 
   if (!name?.trim() || !memberId || !displayName?.trim()) {

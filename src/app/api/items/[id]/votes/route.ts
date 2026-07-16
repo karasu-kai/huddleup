@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { useSupabaseDb } from "@/lib/supabase/admin";
+import { requireApiUser, isAuthError } from "@/lib/auth";
+import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
 import type { Vote } from "@/lib/types";
 
@@ -8,6 +11,18 @@ export async function POST(request: Request, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
   const { memberId, vote } = body;
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    if (vote !== 1 && vote !== -1 && vote !== 0) {
+      return NextResponse.json({ error: "Invalid vote" }, { status: 400 });
+    }
+
+    const result = await supabaseDb.upsertVote(id, auth.user.id, vote);
+    return NextResponse.json(result);
+  }
 
   if (!memberId || (vote !== 1 && vote !== -1 && vote !== 0)) {
     return NextResponse.json({ error: "Invalid vote" }, { status: 400 });

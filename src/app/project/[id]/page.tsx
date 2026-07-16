@@ -5,13 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import type {
   Comment,
   Item,
-  MemberIdentity,
   Project,
   ProjectMember,
   Tab,
   Vote,
 } from "@/lib/types";
-import { getMember } from "@/lib/member";
+import { useAuth } from "@/components/AuthProvider";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { api } from "@/lib/utils";
 import { TabBar } from "@/components/TabBar";
 import { ItemCard } from "@/components/ItemCard";
@@ -38,7 +38,7 @@ export default function ProjectPage() {
   const router = useRouter();
   const projectId = params.id as string;
 
-  const [member, setMember] = useState<MemberIdentity | null>(null);
+  const { member, loading: authLoading } = useAuth();
   const [data, setData] = useState<ProjectData | null>(null);
   const [activeTabId, setActiveTabId] = useState("all");
   const [showAddItem, setShowAddItem] = useState(false);
@@ -53,18 +53,54 @@ export default function ProjectPage() {
   }, [projectId]);
 
   useEffect(() => {
-    const m = getMember();
-    if (!m) {
-      router.replace("/");
+    if (authLoading) return;
+    if (!member) {
+      router.replace(isSupabaseConfigured() ? "/login" : "/");
       return;
     }
-    setMember(m);
     load();
-    const interval = setInterval(load, 3000);
-    return () => clearInterval(interval);
-  }, [load, router]);
 
-  if (!member || !data) {
+    if (!isSupabaseConfigured()) {
+      const interval = setInterval(load, 3000);
+      return () => clearInterval(interval);
+    }
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`project-${projectId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "items", filter: `project_id=eq.${projectId}` },
+        () => load(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "votes" },
+        () => load(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "comments" },
+        () => load(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tabs", filter: `project_id=eq.${projectId}` },
+        () => load(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "projects", filter: `id=eq.${projectId}` },
+        () => load(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [load, member, authLoading, projectId, router]);
+
+  if (authLoading || !member || !data) {
     return (
       <div className="flex min-h-full items-center justify-center text-text-secondary">
         Loading...

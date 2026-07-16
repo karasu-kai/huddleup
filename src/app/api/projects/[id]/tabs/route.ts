@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { useSupabaseDb } from "@/lib/supabase/admin";
+import { requireApiUser, isAuthError } from "@/lib/auth";
+import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
 import type { Tab } from "@/lib/types";
 
@@ -7,6 +10,20 @@ type Params = { params: Promise<{ id: string }> };
 export async function POST(request: Request, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    const isMember = await supabaseDb.isProjectMember(id, auth.user.id);
+    if (!isMember) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const tab = await supabaseDb.createTab(id, body.name || "New section");
+    return NextResponse.json(tab);
+  }
+
   const db = await readDb();
 
   const project = db.projects.find((p) => p.id === id);

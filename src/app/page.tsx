@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectWithMeta } from "@/lib/types";
-import type { MemberIdentity } from "@/lib/types";
-import { createMember, getMember } from "@/lib/member";
+import { createMember } from "@/lib/member";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 import { api, formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -13,19 +14,25 @@ import { Sheet } from "@/components/ui/Sheet";
 
 export default function HomePage() {
   const router = useRouter();
-  const [member, setMember] = useState<MemberIdentity | null>(null);
+  const { member, loading: authLoading, signOut } = useAuth();
   const [nameInput, setNameInput] = useState("");
+  const [localMember, setLocalMember] = useState(member);
   const [projects, setProjects] = useState<ProjectWithMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
 
+  const activeMember = isSupabaseConfigured() ? member : localMember;
+
   useEffect(() => {
-    const m = getMember();
-    setMember(m);
-    if (m) loadProjects(m.id);
+    setLocalMember(member);
+  }, [member]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (activeMember) loadProjects(activeMember.id);
     else setLoading(false);
-  }, []);
+  }, [activeMember, authLoading]);
 
   async function loadProjects(memberId: string) {
     setLoading(true);
@@ -43,11 +50,19 @@ export default function HomePage() {
     e.preventDefault();
     if (!nameInput.trim()) return;
     const m = createMember(nameInput);
-    setMember(m);
+    setLocalMember(m);
     loadProjects(m.id);
   }
 
-  if (!member) {
+  if (authLoading) {
+    return (
+      <div className="flex min-h-full items-center justify-center text-text-secondary">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!activeMember && !isSupabaseConfigured()) {
     return (
       <div className="flex min-h-full flex-col items-center justify-center px-6">
         <div className="w-full max-w-sm text-center">
@@ -73,12 +88,26 @@ export default function HomePage() {
     );
   }
 
+  if (!activeMember) {
+    return null;
+  }
+
   return (
     <div className="mx-auto min-h-full max-w-lg">
       <header className="sticky top-0 z-10 border-b border-border bg-canvas/95 px-4 py-4 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <Logo compact />
-          <span className="text-sm text-text-secondary">{member.displayName}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-text-secondary">{activeMember.displayName}</span>
+            {isSupabaseConfigured() && (
+              <button
+                onClick={() => signOut()}
+                className="text-xs text-text-tertiary hover:text-text-primary"
+              >
+                Log out
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -150,28 +179,24 @@ export default function HomePage() {
         )}
       </main>
 
-      {member && (
-        <>
-          <CreateProjectSheet
-            open={showCreate}
-            onClose={() => setShowCreate(false)}
-            member={member}
-            onCreated={(id) => {
-              loadProjects(member.id);
-              router.push(`/project/${id}`);
-            }}
-          />
-          <JoinProjectSheet
-            open={showJoin}
-            onClose={() => setShowJoin(false)}
-            member={member}
-            onJoined={(id) => {
-              loadProjects(member.id);
-              router.push(`/project/${id}`);
-            }}
-          />
-        </>
-      )}
+      <CreateProjectSheet
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        member={activeMember}
+        onCreated={(id) => {
+          loadProjects(activeMember.id);
+          router.push(`/project/${id}`);
+        }}
+      />
+      <JoinProjectSheet
+        open={showJoin}
+        onClose={() => setShowJoin(false)}
+        member={activeMember}
+        onJoined={(id) => {
+          loadProjects(activeMember.id);
+          router.push(`/project/${id}`);
+        }}
+      />
     </div>
   );
 }
@@ -192,7 +217,7 @@ function CreateProjectSheet({
 }: {
   open: boolean;
   onClose: () => void;
-  member: MemberIdentity;
+  member: { id: string; displayName: string; color: string };
   onCreated: (id: string) => void;
 }) {
   const [name, setName] = useState("");
@@ -259,7 +284,7 @@ function JoinProjectSheet({
 }: {
   open: boolean;
   onClose: () => void;
-  member: MemberIdentity;
+  member: { id: string; displayName: string; color: string };
   onJoined: (id: string) => void;
 }) {
   const [code, setCode] = useState("");

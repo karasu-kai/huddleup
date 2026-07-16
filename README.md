@@ -2,6 +2,8 @@
 
 Shared lists for anything you're planning together — moves, trips, events, renos, and more.
 
+**Domain:** [huddleup.wtf](https://huddleup.wtf)
+
 ## Features
 
 - **Named projects** — create a board for anything
@@ -11,25 +13,43 @@ Shared lists for anything you're planning together — moves, trips, events, ren
 - **Group decisions** — thumbs up/down + comments
 - **Budget tracking** — per-item and overall project tally
 - **Mobile-first** — matte neutral UI with neon accents
+- **Auth (v1.5)** — Google OAuth + email magic link via Supabase
 
-## Quick start
+## Quick start (local)
 
 ```bash
 npm install
+cp .env.example .env.local   # optional — without it, runs in local JSON mode
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) on your phone or desktop.
+Open [http://localhost:3000](http://localhost:3000).
 
-### Using with your partner
+Without Supabase env vars, the app uses `.data/db.json` and localStorage display names (v1 mode).
 
-1. One person creates a project and gets an **invite code**
-2. Share the code — others tap **Join code** on the home screen
-3. Everyone sees the same list (auto-refreshes every 3 seconds)
+## Supabase setup (production)
 
-### Add to home screen (iOS)
+1. Create a [Supabase](https://supabase.com) project
+2. Run `supabase/schema.sql` in the SQL Editor
+3. Enable Google OAuth in Authentication → Providers
+4. Add env vars (see `.env.example`):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` (server only, never expose to client)
+5. Set Site URL to `https://huddleup.wtf` and redirect URL to `https://huddleup.wtf/auth/callback`
 
-Safari → Share → **Add to Home Screen** for an app-like experience.
+## Hostinger deploy
+
+| Setting | Value |
+|---------|-------|
+| Type | Node.js Web App |
+| Repository | `https://github.com/karasu-kai/huddleup` |
+| Branch | `main` |
+| Node | **20** |
+| Build | `npm run build` |
+| Start | `npm run start` |
+
+Add all Supabase env vars in the Hostinger panel. **Do not** deploy as static.
 
 ## Project structure
 
@@ -37,20 +57,10 @@ Safari → Share → **Add to Home Screen** for an app-like experience.
 src/
   app/           # Pages + API routes
   components/    # UI components
-  lib/           # Types, utils, local DB
-.data/           # JSON database (auto-created, gitignored)
-public/uploads/  # Uploaded images (gitignored)
-```
-
-## Deploying
-
-This app uses a local JSON file for storage — perfect for running on a single machine or VPS. For serverless (Vercel), upgrade to Supabase or a hosted database.
-
-Run in production:
-
-```bash
-npm run build
-npm start
+  lib/           # Types, utils, DB layer
+supabase/
+  schema.sql     # Postgres schema + RLS
+.data/           # Local JSON DB (dev fallback, gitignored)
 ```
 
 ## Design

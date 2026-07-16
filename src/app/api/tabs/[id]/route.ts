@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { useSupabaseDb } from "@/lib/supabase/admin";
+import { requireApiUser, isAuthError } from "@/lib/auth";
+import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
 
 type Params = { params: Promise<{ id: string }> };
@@ -6,6 +9,18 @@ type Params = { params: Promise<{ id: string }> };
 export async function PATCH(request: Request, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    const tab = await supabaseDb.updateTab(id, {
+      name: body.name,
+      sortOrder: body.sortOrder,
+    });
+    return NextResponse.json(tab);
+  }
+
   const db = await readDb();
   const index = db.tabs.findIndex((t) => t.id === id);
 
@@ -22,6 +37,22 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    try {
+      await supabaseDb.deleteTab(id);
+      return NextResponse.json({ ok: true });
+    } catch (err) {
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : "Delete failed" },
+        { status: 400 },
+      );
+    }
+  }
+
   const db = await readDb();
   const tab = db.tabs.find((t) => t.id === id);
 

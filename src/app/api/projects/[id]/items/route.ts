@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { useSupabaseDb } from "@/lib/supabase/admin";
+import { requireApiUser, isAuthError } from "@/lib/auth";
+import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
 import type { Item } from "@/lib/types";
 
@@ -7,6 +10,30 @@ type Params = { params: Promise<{ id: string }> };
 export async function POST(request: Request, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    const isMember = await supabaseDb.isProjectMember(id, auth.user.id);
+    if (!isMember) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const item = await supabaseDb.createItem(id, {
+      name: body.name,
+      tabId: body.tabId,
+      cost: body.cost ?? null,
+      budget: body.budget ?? null,
+      url: body.url?.trim() || null,
+      imageUrl: body.imageUrl || null,
+      notes: body.notes?.trim() || null,
+      createdBy: auth.user.id,
+    });
+
+    return NextResponse.json(item);
+  }
+
   const db = await readDb();
 
   const project = db.projects.find((p) => p.id === id);

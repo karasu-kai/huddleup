@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { useSupabaseDb } from "@/lib/supabase/admin";
+import { requireApiUser, isAuthError } from "@/lib/auth";
+import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
 
 type Params = { params: Promise<{ id: string }> };
@@ -6,6 +9,24 @@ type Params = { params: Promise<{ id: string }> };
 export async function PATCH(request: Request, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    const item = await supabaseDb.updateItem(id, {
+      name: body.name,
+      done: body.done,
+      cost: body.cost,
+      budget: body.budget,
+      url: body.url,
+      imageUrl: body.imageUrl,
+      notes: body.notes,
+      tabId: body.tabId,
+    });
+    return NextResponse.json(item);
+  }
+
   const db = await readDb();
   const index = db.items.findIndex((i) => i.id === id);
 
@@ -29,6 +50,15 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
+
+  if (useSupabaseDb()) {
+    const auth = await requireApiUser();
+    if (isAuthError(auth)) return auth;
+
+    await supabaseDb.deleteItem(id);
+    return NextResponse.json({ ok: true });
+  }
+
   const db = await readDb();
 
   db.items = db.items.filter((i) => i.id !== id);
