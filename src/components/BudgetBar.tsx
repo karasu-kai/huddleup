@@ -17,7 +17,9 @@ export function BudgetBar({
       <div className="border-t border-border bg-surface px-4 py-3 pb-[calc(0.75rem+var(--safe-bottom))]">
         <div className="flex items-center justify-between text-sm">
           <span className="text-text-secondary">{label}</span>
-          <span className="tabular-nums font-semibold">{formatCurrency(spent)} spent</span>
+          <span className="tabular-nums font-semibold text-text-primary">
+            {formatCurrency(spent)} spent
+          </span>
         </div>
       </div>
     );
@@ -45,7 +47,7 @@ export function BudgetBar({
       </div>
       {over && (
         <p className="mt-1.5 text-xs text-warning">
-          {formatCurrency(spent - budget)} over budget
+          {formatCurrency(spent - budget)} over — worth it?
         </p>
       )}
     </div>

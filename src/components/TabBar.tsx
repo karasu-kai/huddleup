@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { Tab } from "@/lib/types";
 
 export function TabBar({
   tabs,
@@ -9,13 +8,13 @@ export function TabBar({
   onSelect,
   onAddTab,
 }: {
-  tabs: Tab[];
+  tabs: { id: string; name: string }[];
   activeTabId: string;
   onSelect: (tabId: string) => void;
   onAddTab: () => void;
 }) {
   return (
-    <div className="border-b border-border bg-surface">
+    <div className="border-b border-border bg-canvas">
       <div className="flex items-center gap-1 overflow-x-auto px-4 py-2 scrollbar-none">
         <TabPill
           name="All"
@@ -32,7 +31,7 @@ export function TabBar({
         ))}
         <button
           onClick={onAddTab}
-          className="flex h-9 shrink-0 items-center justify-center rounded-full px-3 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary"
+          className="flex h-9 shrink-0 items-center justify-center rounded-full px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary"
         >
           + Section
         </button>
@@ -57,12 +56,12 @@ function TabPill({
         "relative shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors",
         active
           ? "text-text-primary"
-          : "text-text-secondary hover:text-text-primary hover:bg-surface-muted",
+          : "text-text-secondary hover:bg-surface-muted hover:text-text-primary",
       )}
     >
       {name}
       {active && (
-        <span className="absolute inset-x-3 -bottom-[9px] h-0.5 rounded-full bg-neon" />
+        <span className="absolute inset-x-2 -bottom-[9px] h-[3px] rounded-full bg-neon" />
       )}
     </button>
   );

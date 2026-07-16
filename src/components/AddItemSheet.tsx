@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Tab } from "@/lib/types";
 import { Button } from "./ui/Button";
-import { Input, Label, Textarea } from "./ui/Input";
+import { Input, Label, Textarea, Select } from "./ui/Input";
 import { Sheet } from "./ui/Sheet";
 
 type ItemFormData = {
@@ -52,7 +52,11 @@ export function AddItemSheet({
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
     if (res.ok) {
       const { url } = await res.json();
       update("imageUrl", url);
@@ -100,17 +104,16 @@ export function AddItemSheet({
 
         <div>
           <Label>Section</Label>
-          <select
+          <Select
             value={form.tabId}
             onChange={(e) => update("tabId", e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-surface px-3 text-text-primary focus:border-text-primary focus:outline-none"
           >
             {tabs.map((tab) => (
               <option key={tab.id} value={tab.id}>
                 {tab.name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

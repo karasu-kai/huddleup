@@ -40,12 +40,12 @@ export function AvatarStack({
   return (
     <div className="flex -space-x-2">
       {shown.map((m, i) => (
-        <div key={i} className="ring-2 ring-surface rounded-full">
+        <div key={i} className="rounded-full ring-2 ring-canvas">
           <Avatar name={m.displayName} color={m.color} />
         </div>
       ))}
       {extra > 0 && (
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-muted text-[10px] font-medium text-text-secondary ring-2 ring-surface">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-muted text-[10px] font-medium text-text-secondary ring-2 ring-canvas">
           +{extra}
         </div>
       )}

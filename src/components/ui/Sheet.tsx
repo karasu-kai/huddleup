@@ -35,7 +35,7 @@ export function Sheet({
       />
       <div
         className={cn(
-          "relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col rounded-t-3xl bg-surface sm:rounded-3xl animate-slide-up",
+          "relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col rounded-t-[24px] border border-border bg-surface sm:rounded-[24px] animate-slide-up",
           "pb-[calc(1rem+var(--safe-bottom))]",
         )}
       >

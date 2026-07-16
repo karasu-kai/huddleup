@@ -42,7 +42,7 @@ export function ItemCard({
         <button
           onClick={onToggle}
           className={cn(
-            "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
+            "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 transition-colors",
             item.done
               ? "border-neon bg-neon text-text-primary"
               : "border-border bg-surface hover:border-text-tertiary",
@@ -179,7 +179,7 @@ function VoteButton({
       className={cn(
         "flex items-center gap-1 rounded-lg px-2 py-1 text-sm transition-colors",
         active
-          ? "bg-neon/30 ring-1 ring-neon"
+          ? "bg-neon/25 ring-1 ring-neon text-text-primary"
           : "text-text-secondary hover:bg-surface-muted",
       )}
     >

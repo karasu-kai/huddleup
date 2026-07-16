@@ -22,18 +22,78 @@
 
 html {
   height: 100%;
+  background-color: var(--canvas);
 }
 
 body {
-  @apply bg-canvas text-text-primary font-sans antialiased;
   min-height: 100%;
+  background-color: var(--canvas);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
 }
 
 input,
 textarea,
-button {
+button,
+select {
   font: inherit;
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .app-card {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .app-input {
+    height: 2.75rem;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background-color: var(--surface-muted);
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    color: var(--text-primary);
+  }
+
+  .app-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .app-input:focus {
+    outline: none;
+    border-color: var(--text-primary);
+  }
+
+  .neon-pill {
+    border-radius: 9999px;
+    background-color: color-mix(in srgb, var(--neon) 18%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--neon) 40%, var(--border));
+    color: var(--text-primary);
+    font-family: ui-monospace, monospace;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
 }
 
 @keyframes slide-up {
@@ -65,10 +125,6 @@ button {
 }
 
 .sheet-backdrop {
-  background: rgba(18, 18, 18, 0.4);
-  backdrop-filter: blur(4px);
-}
-
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
+  background: rgba(18, 18, 18, 0.35);
+  backdrop-filter: blur(6px);
 }

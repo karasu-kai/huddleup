@@ -170,7 +170,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-full max-w-lg flex-col">
+    <div className="mx-auto flex min-h-full max-w-lg flex-col bg-canvas">
       <header className="sticky top-0 z-20 border-b border-border bg-canvas/95 backdrop-blur-sm">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
@@ -184,10 +184,10 @@ export default function ProjectPage() {
             <h1 className="truncate font-semibold">{project.name}</h1>
             <button
               onClick={copyInviteCode}
-              className="text-xs text-text-secondary hover:text-text-primary"
+              className="neon-pill mt-1 inline-flex px-2.5 py-1 text-[11px] uppercase"
             >
-              Code: {project.inviteCode}
-              {copied ? " · Copied!" : " · Tap to copy"}
+              {project.inviteCode}
+              {copied ? " · copied" : " · tap to copy"}
             </button>
           </div>
           <AvatarStack
@@ -215,8 +215,8 @@ export default function ProjectPage() {
       <main className="flex-1 space-y-3 px-4 py-4 pb-24">
         {filteredItems.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-lg font-medium">Nothing here yet</p>
-            <p className="mt-1 text-text-secondary">Dream big.</p>
+            <p className="text-lg font-semibold text-text-primary">Nothing here yet</p>
+            <p className="mt-1 text-sm text-text-secondary">Dream big.</p>
           </div>
         ) : (
           <>
@@ -295,7 +295,7 @@ export default function ProjectPage() {
 
       <button
         onClick={() => setShowAddItem(true)}
-        className="fixed bottom-[calc(5rem+var(--safe-bottom))] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-neon text-2xl font-light text-text-primary shadow-lg transition-transform active:scale-95"
+        className="fixed bottom-[calc(5rem+var(--safe-bottom))] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-neon text-3xl font-light leading-none text-text-primary shadow-[0_4px_14px_rgba(0,0,0,0.12)] transition-transform active:scale-95"
         aria-label="Add item"
       >
         +

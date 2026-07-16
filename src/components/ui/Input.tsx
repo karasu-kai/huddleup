@@ -8,10 +8,7 @@ export function Input({
 }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={cn(
-        "h-11 w-full rounded-xl border border-border bg-surface px-3 text-text-primary placeholder:text-text-tertiary focus:border-text-primary focus:outline-none",
-        className,
-      )}
+      className={cn("app-input", className)}
       {...props}
     />
   );
@@ -24,7 +21,7 @@ export function Textarea({
   return (
     <textarea
       className={cn(
-        "min-h-[80px] w-full resize-none rounded-xl border border-border bg-surface px-3 py-2.5 text-text-primary placeholder:text-text-tertiary focus:border-text-primary focus:outline-none",
+        "min-h-[80px] w-full resize-none rounded-xl border border-border bg-surface-muted px-3 py-2.5 text-text-primary placeholder:text-text-tertiary focus:border-text-primary focus:outline-none",
         className,
       )}
       {...props}
@@ -37,5 +34,20 @@ export function Label({ children }: { children: React.ReactNode }) {
     <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-text-secondary">
       {children}
     </label>
+  );
+}
+
+export function Select({
+  className,
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      className={cn("app-input", className)}
+      {...props}
+    >
+      {children}
+    </select>
   );
 }

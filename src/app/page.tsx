@@ -48,13 +48,13 @@ export default function HomePage() {
 
   if (!member) {
     return (
-      <div className="flex min-h-full flex-col items-center justify-center px-6">
+      <div className="flex min-h-full flex-col items-center justify-center bg-canvas px-6">
         <div className="w-full max-w-sm text-center">
           <Logo />
-          <p className="mt-3 text-text-secondary">
+          <p className="mt-3 text-sm text-text-secondary">
             Shared lists for anything you&apos;re planning together.
           </p>
-          <form onSubmit={handleSetName} className="mt-8 space-y-3 text-left">
+          <form onSubmit={handleSetName} className="mt-8 space-y-4 text-left">
             <Label>Your name</Label>
             <Input
               value={nameInput}
@@ -73,7 +73,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="mx-auto min-h-full max-w-lg">
+    <div className="mx-auto min-h-full max-w-lg bg-canvas">
       <header className="sticky top-0 z-10 border-b border-border bg-canvas/95 px-4 py-4 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <Logo compact />
@@ -95,8 +95,8 @@ export default function HomePage() {
           <p className="text-center text-text-secondary">Loading...</p>
         ) : projects.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-lg font-medium">No projects yet</p>
-            <p className="mt-1 text-text-secondary">
+            <p className="text-lg font-semibold text-text-primary">No projects yet</p>
+            <p className="mt-1 text-sm text-text-secondary">
               Create one or join with an invite code.
             </p>
           </div>
@@ -175,13 +175,7 @@ export default function HomePage() {
   );
 }
 
-function Logo({ compact }: { compact?: boolean }) {
-  return (
-    <h1 className={compact ? "text-xl font-bold tracking-tight" : "text-3xl font-bold tracking-tight"}>
-      Huddle<span className="text-neon">Up</span>
-    </h1>
-  );
-}
+import { Logo } from "@/components/Logo";
 
 function CreateProjectSheet({
   open,
