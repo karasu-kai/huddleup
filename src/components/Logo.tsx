@@ -1,35 +1,22 @@
 "use client";
 
-function UpMark({ compact }: { compact?: boolean }) {
+function UpMark() {
   return (
-    <svg
-      viewBox="0 0 48 56"
-      className={
-        compact
-          ? "inline-block h-8 w-[1.85rem] shrink-0"
-          : "inline-block h-11 w-10 shrink-0"
-      }
-      aria-hidden
-    >
-      {/* Triangle roof — solid up arrow */}
-      <path fill="#121212" d="M24 2 44 24H4L24 2z" />
-      {/* Rectangular house body */}
-      <path fill="#121212" d="M4 24h40v28H4V24z" />
-      {/* Neon Up inside the house body */}
-      <text
-        x="24"
-        y="40"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fill="#C8FF00"
-        fontSize={compact ? 11 : 14}
-        fontWeight="800"
-        fontFamily="var(--font-geist-sans), system-ui, sans-serif"
-        letterSpacing="-0.02em"
+    <span className="relative inline-flex h-[0.92em] w-[0.78em] shrink-0 translate-y-[0.06em] items-center justify-center">
+      <svg
+        viewBox="0 0 52 60"
+        className="absolute inset-0 h-full w-full"
+        aria-hidden
       >
+        {/* Up-pointing triangle roof — wider than the body */}
+        <path fill="#121212" d="M26 1 50 29H2L26 1z" />
+        {/* Rectangular house body below the roof */}
+        <path fill="#121212" d="M8 29h36v29H8V29z" />
+      </svg>
+      <span className="relative z-10 translate-y-[22%] text-[0.34em] font-extrabold leading-none tracking-tight text-[#C8FF00]">
         Up
-      </text>
-    </svg>
+      </span>
+    </span>
   );
 }
 
@@ -43,7 +30,7 @@ export function Logo({ compact }: { compact?: boolean }) {
       }
     >
       <span className="text-text-primary">Huddle</span>
-      <UpMark compact={compact} />
+      <UpMark />
     </h1>
   );
 }
