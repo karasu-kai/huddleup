@@ -5,13 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import type {
   Comment,
   Item,
+  MemberIdentity,
   Project,
   ProjectMember,
   Tab,
   Vote,
 } from "@/lib/types";
-import { useAuth } from "@/components/AuthProvider";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { fetchSession } from "@/lib/member";
 import { api } from "@/lib/utils";
 import { TabBar } from "@/components/TabBar";
 import { ItemCard } from "@/components/ItemCard";
@@ -38,7 +38,7 @@ export default function ProjectPage() {
   const router = useRouter();
   const projectId = params.id as string;
 
-  const { member, loading: authLoading } = useAuth();
+  const [member, setMember] = useState<MemberIdentity | null>(null);
   const [data, setData] = useState<ProjectData | null>(null);
   const [activeTabId, setActiveTabId] = useState("all");
   const [showAddItem, setShowAddItem] = useState(false);
@@ -53,54 +53,24 @@ export default function ProjectPage() {
   }, [projectId]);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!member) {
-      router.replace(isSupabaseConfigured() ? "/login" : "/");
-      return;
-    }
-    load();
+    let interval: ReturnType<typeof setInterval> | null = null;
 
-    if (!isSupabaseConfigured()) {
-      const interval = setInterval(load, 3000);
-      return () => clearInterval(interval);
-    }
-
-    const supabase = createClient();
-    const channel = supabase
-      .channel(`project-${projectId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "items", filter: `project_id=eq.${projectId}` },
-        () => load(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "votes" },
-        () => load(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "comments" },
-        () => load(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "tabs", filter: `project_id=eq.${projectId}` },
-        () => load(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "projects", filter: `id=eq.${projectId}` },
-        () => load(),
-      )
-      .subscribe();
+    fetchSession().then((m) => {
+      if (!m) {
+        router.replace("/");
+        return;
+      }
+      setMember(m);
+      load();
+      interval = setInterval(load, 3000);
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      if (interval) clearInterval(interval);
     };
-  }, [load, member, authLoading, projectId, router]);
+  }, [load, router]);
 
-  if (authLoading || !member || !data) {
+  if (!member || !data) {
     return (
       <div className="flex min-h-full items-center justify-center text-text-secondary">
         Loading...
@@ -132,7 +102,6 @@ export default function ProjectPage() {
         url: form.url,
         notes: form.notes,
         imageUrl: form.imageUrl || null,
-        createdBy: member!.id,
       }),
     });
     await load();
@@ -173,7 +142,7 @@ export default function ProjectPage() {
   async function voteItem(itemId: string, vote: 1 | -1 | 0) {
     await api(`/api/items/${itemId}/votes`, {
       method: "POST",
-      body: JSON.stringify({ memberId: member!.id, vote }),
+      body: JSON.stringify({ vote }),
     });
     await load();
   }
@@ -181,11 +150,7 @@ export default function ProjectPage() {
   async function addComment(itemId: string, text: string) {
     await api(`/api/items/${itemId}/comments`, {
       method: "POST",
-      body: JSON.stringify({
-        memberId: member!.id,
-        memberName: member!.displayName,
-        text,
-      }),
+      body: JSON.stringify({ text }),
     });
     await load();
   }

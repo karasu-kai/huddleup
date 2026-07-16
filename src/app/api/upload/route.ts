@@ -1,24 +1,17 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { useSupabaseDb } from "@/lib/supabase/admin";
-import { requireApiUser, isAuthError } from "@/lib/auth";
-import * as supabaseDb from "@/lib/db/supabase";
+import { requireSession, isSessionError } from "@/lib/session";
 
 export async function POST(request: Request) {
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
+
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
 
   if (!file) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
-  }
-
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    const url = await supabaseDb.uploadPhoto(auth.user.id, file);
-    return NextResponse.json({ url });
   }
 
   const uploadsDir = path.join(process.cwd(), "public", "uploads");

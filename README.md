@@ -1,42 +1,25 @@
 # Huddle Up
 
-Shared lists for anything you're planning together — moves, trips, events, renos, and more.
+Shared lists for anything you're planning together.
 
 **Domain:** [huddleup.wtf](https://huddleup.wtf)
 
-## Features
+## Built-in storage — no external services
 
-- **Named projects** — create a board for anything
-- **Custom sections** — name your own tabs (Kitchen, Trip, Gear…)
-- **Multi-participant** — share a 6-character invite code
-- **Items** — checkbox, cost, budget, URL, photo, notes
-- **Group decisions** — thumbs up/down + comments
-- **Budget tracking** — per-item and overall project tally
-- **Mobile-first** — matte neutral UI with neon accents
-- **Auth (v1.5)** — Google OAuth + email magic link via Supabase
+Everything runs on the server:
 
-## Quick start (local)
+- **Database:** `.data/db.json` (users, sessions, projects, items, votes, comments)
+- **Sessions:** HTTP-only cookies — no browser localStorage, no Supabase
+- **Photos:** `public/uploads/` on disk
+
+## Quick start
 
 ```bash
 npm install
-cp .env.example .env.local   # optional — without it, runs in local JSON mode
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-Without Supabase env vars, the app uses `.data/db.json` and localStorage display names (v1 mode).
-
-## Supabase setup (production)
-
-1. Create a [Supabase](https://supabase.com) project
-2. Run `supabase/schema.sql` in the SQL Editor
-3. Enable Google OAuth in Authentication → Providers
-4. Add env vars (see `.env.example`):
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY` (server only, never expose to client)
-5. Set Site URL to `https://huddleup.wtf` and redirect URL to `https://huddleup.wtf/auth/callback`
+Enter your display name on first visit. Your session is stored server-side in `.data/db.json`.
 
 ## Hostinger deploy
 
@@ -49,7 +32,11 @@ Without Supabase env vars, the app uses `.data/db.json` and localStorage display
 | Build | `npm run build` |
 | Start | `npm run start` |
 
-Add all Supabase env vars in the Hostinger panel. **Do not** deploy as static.
+**Do not** deploy as static.
+
+**Critical:** Ensure `.data/` and `public/uploads/` persist across redeploys, or all lists and photos will be wiped.
+
+No env vars required.
 
 ## Project structure
 
@@ -57,14 +44,7 @@ Add all Supabase env vars in the Hostinger panel. **Do not** deploy as static.
 src/
   app/           # Pages + API routes
   components/    # UI components
-  lib/           # Types, utils, DB layer
-supabase/
-  schema.sql     # Postgres schema + RLS
-.data/           # Local JSON DB (dev fallback, gitignored)
+  lib/           # Types, utils, session, local DB
+.data/           # JSON database (gitignored)
+public/uploads/  # Uploaded images (gitignored)
 ```
-
-## Design
-
-- **Canvas:** `#E8E8E4` matte stone
-- **Accent:** `#C8FF00` electric lime
-- **Cards:** white, crisp borders, iOS-like feel

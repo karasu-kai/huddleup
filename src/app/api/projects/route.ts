@@ -1,32 +1,19 @@
 import { NextResponse } from "next/server";
-import { useSupabaseDb } from "@/lib/supabase/admin";
-import { requireApiUser, isAuthError } from "@/lib/auth";
-import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb, generateInviteCode } from "@/lib/db/local";
+import { requireSession, isSessionError } from "@/lib/session";
 import type { Project, ProjectMember, Tab } from "@/lib/types";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET() {
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
 
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-    const projects = await supabaseDb.listProjectsForUser(auth.user.id);
-    return NextResponse.json(projects);
-  }
-
-  const memberId = searchParams.get("memberId");
   const db = await readDb();
-
-  let projects = db.projects;
-  if (memberId) {
-    const projectIds = new Set(
-      db.projectMembers
-        .filter((m) => m.memberId === memberId)
-        .map((m) => m.projectId),
-    );
-    projects = projects.filter((p) => projectIds.has(p.id));
-  }
+  const projectIds = new Set(
+    db.projectMembers
+      .filter((m) => m.memberId === auth.id)
+      .map((m) => m.projectId),
+  );
+  const projects = db.projects.filter((p) => projectIds.has(p.id));
 
   const enriched = projects.map((project) => {
     const items = db.items.filter((i) => i.projectId === project.id);
@@ -45,30 +32,13 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
+
   const body = await request.json();
+  const { name, overallBudget } = body;
 
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    if (!body.name?.trim()) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    const result = await supabaseDb.createProject({
-      name: body.name,
-      overallBudget: body.overallBudget ?? null,
-      userId: auth.user.id,
-      displayName: auth.member.displayName,
-      color: auth.member.color,
-    });
-
-    return NextResponse.json(result);
-  }
-
-  const { name, overallBudget, memberId, displayName, color } = body;
-
-  if (!name?.trim() || !memberId || !displayName?.trim()) {
+  if (!name?.trim()) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -93,9 +63,9 @@ export async function POST(request: Request) {
   const member: ProjectMember = {
     id: crypto.randomUUID(),
     projectId: project.id,
-    memberId,
-    displayName: displayName.trim(),
-    color: color || "#C8FF00",
+    memberId: auth.id,
+    displayName: auth.displayName,
+    color: auth.color,
     joinedAt: now,
   };
 

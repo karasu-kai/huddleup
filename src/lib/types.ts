@@ -1,3 +1,17 @@
+export type User = {
+  id: string;
+  displayName: string;
+  color: string;
+  createdAt: string;
+};
+
+export type Session = {
+  id: string;
+  userId: string;
+  createdAt: string;
+  expiresAt: string;
+};
+
 export type Project = {
   id: string;
   name: string;
@@ -55,6 +69,8 @@ export type ProjectMember = {
 };
 
 export type Database = {
+  users: User[];
+  sessions: Session[];
   projects: Project[];
   tabs: Tab[];
   items: Item[];

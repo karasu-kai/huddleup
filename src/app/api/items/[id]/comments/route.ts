@@ -1,29 +1,16 @@
 import { NextResponse } from "next/server";
-import { useSupabaseDb } from "@/lib/supabase/admin";
-import { requireApiUser, isAuthError } from "@/lib/auth";
-import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
+import { requireSession, isSessionError } from "@/lib/session";
 import type { Comment } from "@/lib/types";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, { params }: Params) {
   const { id } = await params;
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
+
   const body = await request.json();
-
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    const comment = await supabaseDb.addComment(
-      id,
-      auth.user.id,
-      auth.member.displayName,
-      body.text,
-    );
-    return NextResponse.json(comment);
-  }
-
   const db = await readDb();
 
   const item = db.items.find((i) => i.id === id);
@@ -31,11 +18,18 @@ export async function POST(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
+  const isMember = db.projectMembers.some(
+    (m) => m.projectId === item.projectId && m.memberId === auth.id,
+  );
+  if (!isMember) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const comment: Comment = {
     id: crypto.randomUUID(),
     itemId: id,
-    memberId: body.memberId,
-    memberName: body.memberName,
+    memberId: auth.id,
+    memberName: auth.displayName,
     text: body.text?.trim(),
     createdAt: new Date().toISOString(),
   };
@@ -47,17 +41,15 @@ export async function POST(request: Request, { params }: Params) {
 
 export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
-
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    const supabase = (await import("@/lib/supabase/admin")).createAdminClient();
-    await supabase.from("comments").delete().eq("id", id).eq("user_id", auth.user.id);
-    return NextResponse.json({ ok: true });
-  }
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
 
   const db = await readDb();
+  const comment = db.comments.find((c) => c.id === id);
+  if (!comment || comment.memberId !== auth.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   db.comments = db.comments.filter((c) => c.id !== id);
   await writeDb(db);
   return NextResponse.json({ ok: true });

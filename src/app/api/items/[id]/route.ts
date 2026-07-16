@@ -1,32 +1,29 @@
 import { NextResponse } from "next/server";
-import { useSupabaseDb } from "@/lib/supabase/admin";
-import { requireApiUser, isAuthError } from "@/lib/auth";
-import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
+import { requireSession, requireProjectMember, isSessionError } from "@/lib/session";
 
 type Params = { params: Promise<{ id: string }> };
 
+async function getItemProjectId(itemId: string) {
+  const db = await readDb();
+  const item = db.items.find((i) => i.id === itemId);
+  return item?.projectId ?? null;
+}
+
 export async function PATCH(request: Request, { params }: Params) {
   const { id } = await params;
-  const body = await request.json();
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
 
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    const item = await supabaseDb.updateItem(id, {
-      name: body.name,
-      done: body.done,
-      cost: body.cost,
-      budget: body.budget,
-      url: body.url,
-      imageUrl: body.imageUrl,
-      notes: body.notes,
-      tabId: body.tabId,
-    });
-    return NextResponse.json(item);
+  const projectId = await getItemProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
+  const memberCheck = await requireProjectMember(projectId);
+  if (isSessionError(memberCheck)) return memberCheck;
+
+  const body = await request.json();
   const db = await readDb();
   const index = db.items.findIndex((i) => i.id === id);
 
@@ -50,14 +47,16 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
 
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    await supabaseDb.deleteItem(id);
-    return NextResponse.json({ ok: true });
+  const projectId = await getItemProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
+
+  const memberCheck = await requireProjectMember(projectId);
+  if (isSessionError(memberCheck)) return memberCheck;
 
   const db = await readDb();
 

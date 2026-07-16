@@ -6,6 +6,8 @@ const DATA_DIR = path.join(process.cwd(), ".data");
 const DB_PATH = path.join(DATA_DIR, "db.json");
 
 const EMPTY_DB: Database = {
+  users: [],
+  sessions: [],
   projects: [],
   tabs: [],
   items: [],
@@ -26,7 +28,17 @@ async function ensureDb(): Promise<void> {
 export async function readDb(): Promise<Database> {
   await ensureDb();
   const raw = await fs.readFile(DB_PATH, "utf-8");
-  return JSON.parse(raw) as Database;
+  const db = JSON.parse(raw) as Partial<Database>;
+  return {
+    users: db.users ?? [],
+    sessions: db.sessions ?? [],
+    projects: db.projects ?? [],
+    tabs: db.tabs ?? [],
+    items: db.items ?? [],
+    votes: db.votes ?? [],
+    comments: db.comments ?? [],
+    projectMembers: db.projectMembers ?? [],
+  };
 }
 
 export async function writeDb(db: Database): Promise<void> {

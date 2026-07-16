@@ -1,30 +1,13 @@
 import { NextResponse } from "next/server";
-import { useSupabaseDb } from "@/lib/supabase/admin";
-import { requireApiUser, isAuthError } from "@/lib/auth";
-import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
+import { requireProjectMember, isSessionError } from "@/lib/session";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, { params }: Params) {
   const { id } = await params;
-
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    const isMember = await supabaseDb.isProjectMember(id, auth.user.id);
-    if (!isMember) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const bundle = await supabaseDb.getProjectBundle(id);
-    if (!bundle) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(bundle);
-  }
+  const auth = await requireProjectMember(id);
+  if (isSessionError(auth)) return auth;
 
   const db = await readDb();
   const project = db.projects.find((p) => p.id === id);
@@ -70,24 +53,10 @@ export async function GET(_request: Request, { params }: Params) {
 
 export async function PATCH(request: Request, { params }: Params) {
   const { id } = await params;
+  const auth = await requireProjectMember(id);
+  if (isSessionError(auth)) return auth;
+
   const body = await request.json();
-
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    const isMember = await supabaseDb.isProjectMember(id, auth.user.id);
-    if (!isMember) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const project = await supabaseDb.updateProject(id, {
-      name: body.name,
-      overallBudget: body.overallBudget,
-    });
-    return NextResponse.json(project);
-  }
-
   const db = await readDb();
   const index = db.projects.findIndex((p) => p.id === id);
 
@@ -106,26 +75,15 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(_request: Request, { params }: Params) {
   const { id } = await params;
-
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    const isMember = await supabaseDb.isProjectMember(id, auth.user.id);
-    if (!isMember) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    await supabaseDb.deleteProject(id);
-    return NextResponse.json({ ok: true });
-  }
+  const auth = await requireProjectMember(id);
+  if (isSessionError(auth)) return auth;
 
   const db = await readDb();
 
   db.projects = db.projects.filter((p) => p.id !== id);
   const itemIds = db.items.filter((i) => i.projectId === id).map((i) => i.id);
-  db.tabs = db.tabs.filter((t) => t.projectId !== id);
-  db.items = db.items.filter((i) => i.projectId !== id);
+  db.tabs = db.tabs.filter((t) => t.projectId === id);
+  db.items = db.items.filter((i) => i.projectId === id);
   db.votes = db.votes.filter((v) => !itemIds.includes(v.itemId));
   db.comments = db.comments.filter((c) => !itemIds.includes(c.itemId));
   db.projectMembers = db.projectMembers.filter((m) => m.projectId !== id);

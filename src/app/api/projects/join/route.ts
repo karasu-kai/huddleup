@@ -1,39 +1,17 @@
 import { NextResponse } from "next/server";
-import { useSupabaseDb } from "@/lib/supabase/admin";
-import { requireApiUser, isAuthError } from "@/lib/auth";
-import * as supabaseDb from "@/lib/db/supabase";
 import { readDb, writeDb } from "@/lib/db/local";
+import { requireSession, isSessionError } from "@/lib/session";
 import type { ProjectMember } from "@/lib/types";
 
 export async function POST(request: Request) {
+  const auth = await requireSession();
+  if (isSessionError(auth)) return auth;
+
   const body = await request.json();
+  const { inviteCode } = body;
 
-  if (useSupabaseDb()) {
-    const auth = await requireApiUser();
-    if (isAuthError(auth)) return auth;
-
-    if (!body.inviteCode?.trim()) {
-      return NextResponse.json({ error: "Missing invite code" }, { status: 400 });
-    }
-
-    const project = await supabaseDb.joinProject({
-      inviteCode: body.inviteCode,
-      userId: auth.user.id,
-      displayName: auth.member.displayName,
-      color: auth.member.color,
-    });
-
-    if (!project) {
-      return NextResponse.json({ error: "Invalid invite code" }, { status: 404 });
-    }
-
-    return NextResponse.json({ project });
-  }
-
-  const { inviteCode, memberId, displayName, color } = body;
-
-  if (!inviteCode?.trim() || !memberId || !displayName?.trim()) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  if (!inviteCode?.trim()) {
+    return NextResponse.json({ error: "Missing invite code" }, { status: 400 });
   }
 
   const db = await readDb();
@@ -46,16 +24,16 @@ export async function POST(request: Request) {
   }
 
   const existing = db.projectMembers.find(
-    (m) => m.projectId === project.id && m.memberId === memberId,
+    (m) => m.projectId === project.id && m.memberId === auth.id,
   );
 
   if (!existing) {
     const member: ProjectMember = {
       id: crypto.randomUUID(),
       projectId: project.id,
-      memberId,
-      displayName: displayName.trim(),
-      color: color || "#C8FF00",
+      memberId: auth.id,
+      displayName: auth.displayName,
+      color: auth.color,
       joinedAt: new Date().toISOString(),
     };
     db.projectMembers.push(member);
