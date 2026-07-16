@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { readDb, writeDb } from "@/lib/db/local";
 import { AVATAR_COLORS, type MemberIdentity, type Session, type User } from "@/lib/types";
+import { isValidSessionId, sanitizeDisplayName } from "@/lib/security";
 
 export const SESSION_COOKIE = "huddleup_session";
 const SESSION_DAYS = 365;
@@ -9,7 +10,7 @@ const SESSION_DAYS = 365;
 export async function getSessionUser(): Promise<MemberIdentity | null> {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
-  if (!sessionId) return null;
+  if (!sessionId || !isValidSessionId(sessionId)) return null;
 
   const db = await readDb();
   const session = db.sessions.find((s) => s.id === sessionId);
@@ -50,6 +51,11 @@ export async function createUserSession(displayName: string): Promise<{
   session: Session;
   member: MemberIdentity;
 }> {
+  const safeName = sanitizeDisplayName(displayName);
+  if (!safeName) {
+    throw new Error("Invalid display name");
+  }
+
   const db = await readDb();
   const now = new Date();
   const expiresAt = new Date(now);
@@ -57,7 +63,7 @@ export async function createUserSession(displayName: string): Promise<{
 
   const user: User = {
     id: crypto.randomUUID(),
-    displayName: displayName.trim(),
+    displayName: safeName,
     color: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
     createdAt: now.toISOString(),
   };
