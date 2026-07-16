@@ -1,0 +1,10 @@
+{
+  "name": "Huddle Up",
+  "short_name": "HuddleUp",
+  "description": "Mobile-first shared lists",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#14b896",
+  "icons": []
+}
