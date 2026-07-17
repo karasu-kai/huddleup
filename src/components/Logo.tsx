@@ -23,12 +23,19 @@ function Wordmark({ compact }: { compact?: boolean }) {
   return (
     <span
       className={cn(
-        "leading-none tracking-tight",
+        "inline-flex items-center gap-1.5 leading-none tracking-tight",
         compact ? "text-[1.15rem] sm:text-xl" : "text-[1.75rem] sm:text-[2rem]",
       )}
     >
-      <span className="font-semibold text-text-primary">huddle </span>
-      <span className="font-bold text-neon">up</span>
+      <span className="font-semibold text-text-primary">huddle</span>
+      <span
+        className={cn(
+          "inline-flex items-center rounded-md bg-text-primary font-extrabold uppercase leading-none text-[#C8FF00]",
+          compact ? "px-1.5 py-0.5 text-[0.85em] tracking-[0.06em]" : "px-2 py-1 tracking-[0.08em]",
+        )}
+      >
+        up
+      </span>
     </span>
   );
 }

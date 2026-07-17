@@ -12,7 +12,7 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "Huddle Up",
   description: "Shared lists for anything you're planning together.",
-  manifest: "/manifest.json?v=5",
+  manifest: "/manifest.json?v=6",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
