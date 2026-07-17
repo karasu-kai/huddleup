@@ -17,7 +17,7 @@ function UpHouse({ className }: { className?: string }) {
         {/* House body */}
         <rect x="7" y="24" width="34" height="30" rx="1" fill="#121212" />
       </svg>
-      <span className="absolute inset-x-0 bottom-[21%] text-center text-[0.38em] font-extrabold leading-none tracking-[0.08em] text-neon">
+      <span className="absolute inset-x-0 bottom-[20%] text-center text-[0.44em] font-extrabold leading-none tracking-[0.1em] text-neon">
         UP
       </span>
     </span>
