@@ -2,33 +2,25 @@
 
 import { cn } from "@/lib/utils";
 
-/** Classic house: triangle roof + rectangular body, neon UP inside. */
-function HouseUpIcon({ size }: { size: number }) {
-  const height = Math.round(size * 1.15);
+/** Black house icon with neon UP — scales with the wordmark. */
+function UpHouse({ className }: { className?: string }) {
   return (
-    <svg
-      width={size}
-      height={height}
-      viewBox="0 0 80 92"
-      className="shrink-0"
-      aria-hidden
+    <span
+      className={cn(
+        "relative inline-flex shrink-0 items-center justify-center",
+        className,
+      )}
     >
-      <path fill="#121212" d="M40 4 74 42H6L40 4z" />
-      <path fill="#121212" d="M14 42h52v46H14V42z" />
-      <text
-        x="40"
-        y="68"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fill="#C8FF00"
-        fontSize="22"
-        fontWeight="800"
-        fontFamily="var(--font-geist-sans), system-ui, sans-serif"
-        letterSpacing="0.06em"
-      >
+      <svg viewBox="0 0 48 56" className="h-full w-full" aria-hidden>
+        {/* Triangle roof */}
+        <path fill="#121212" d="M24 2 44 24H4L24 2z" />
+        {/* House body */}
+        <rect x="7" y="24" width="34" height="30" rx="1" fill="#121212" />
+      </svg>
+      <span className="absolute inset-x-0 bottom-[21%] text-center text-[0.38em] font-extrabold leading-none tracking-[0.08em] text-neon">
         UP
-      </text>
-    </svg>
+      </span>
+    </span>
   );
 }
 
@@ -39,26 +31,20 @@ export function Logo({
   compact?: boolean;
   centered?: boolean;
 }) {
-  const houseSize = compact ? 40 : 64;
-
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2.5 sm:gap-3",
+        "inline-flex items-center",
+        compact ? "gap-1.5 text-xl" : "gap-2 text-[2rem] sm:text-4xl",
         centered && "justify-center",
       )}
       role="img"
       aria-label="Huddle Up"
     >
-      <span
-        className={cn(
-          "font-bold uppercase tracking-[0.06em] text-text-primary",
-          compact ? "text-lg sm:text-xl" : "text-3xl sm:text-[2.5rem]",
-        )}
-      >
+      <span className="font-bold uppercase leading-none tracking-[0.05em] text-text-primary">
         Huddle
       </span>
-      <HouseUpIcon size={houseSize} />
+      <UpHouse className={compact ? "h-[1.12em] w-[0.92em]" : "h-[1.15em] w-[0.95em]"} />
     </div>
   );
 }
