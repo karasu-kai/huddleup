@@ -2,24 +2,33 @@
 
 import { cn } from "@/lib/utils";
 
-/** Black house icon with neon UP — scales with the wordmark. */
-function UpHouse({ className }: { className?: string }) {
+/** App icon — black tile, neon house (roof points up). */
+function HuddleMark({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      className="shrink-0"
+      aria-hidden
+    >
+      <rect x="1" y="1" width="46" height="46" rx="11" fill="#121212" />
+      <path fill="#C8FF00" d="M24 12 36 24H12L24 12z" />
+      <rect x="14" y="24" width="20" height="14" rx="1.5" fill="#C8FF00" />
+    </svg>
+  );
+}
+
+function Wordmark({ compact }: { compact?: boolean }) {
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center",
-        className,
+        "leading-none tracking-tight",
+        compact ? "text-[1.15rem] sm:text-xl" : "text-[1.75rem] sm:text-[2rem]",
       )}
     >
-      <svg viewBox="0 0 48 56" className="h-full w-full" aria-hidden>
-        {/* Triangle roof */}
-        <path fill="#121212" d="M24 2 44 24H4L24 2z" />
-        {/* House body */}
-        <rect x="7" y="24" width="34" height="30" rx="1" fill="#121212" />
-      </svg>
-      <span className="absolute inset-x-0 bottom-[20%] text-center text-[0.44em] font-extrabold leading-none tracking-[0.1em] text-neon">
-        UP
-      </span>
+      <span className="font-semibold text-text-primary">huddle </span>
+      <span className="font-bold text-neon">up</span>
     </span>
   );
 }
@@ -31,20 +40,35 @@ export function Logo({
   compact?: boolean;
   centered?: boolean;
 }) {
+  const markSize = compact ? 30 : 52;
+
+  if (compact) {
+    return (
+      <div
+        className={cn(
+          "inline-flex items-center gap-2.5",
+          centered && "justify-center",
+        )}
+        role="img"
+        aria-label="Huddle Up"
+      >
+        <HuddleMark size={markSize} />
+        <Wordmark compact />
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
-        "inline-flex items-center",
-        compact ? "gap-1.5 text-xl" : "gap-2 text-[2rem] sm:text-4xl",
+        "inline-flex flex-col items-center gap-3 sm:gap-3.5",
         centered && "justify-center",
       )}
       role="img"
       aria-label="Huddle Up"
     >
-      <span className="font-bold uppercase leading-none tracking-[0.05em] text-text-primary">
-        Huddle
-      </span>
-      <UpHouse className={compact ? "h-[1.12em] w-[0.92em]" : "h-[1.15em] w-[0.95em]"} />
+      <HuddleMark size={markSize} />
+      <Wordmark />
     </div>
   );
 }
