@@ -54,3 +54,23 @@ export function generateInviteCode(): string {
   }
   return code;
 }
+
+export function generateUserCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+export function uniqueUserCode(existing: string[]): string {
+  let code = generateUserCode();
+  let attempts = 0;
+  const taken = new Set(existing.map((c) => c.toUpperCase()));
+  while (taken.has(code) && attempts < 20) {
+    code = generateUserCode();
+    attempts++;
+  }
+  return code;
+}

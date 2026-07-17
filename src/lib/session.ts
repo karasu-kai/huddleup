@@ -1,11 +1,31 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { readDb, writeDb } from "@/lib/db/local";
+import { readDb, writeDb, uniqueUserCode } from "@/lib/db/local";
 import { AVATAR_COLORS, type MemberIdentity, type Session, type User } from "@/lib/types";
 import { isValidSessionId, sanitizeDisplayName } from "@/lib/security";
 
 export const SESSION_COOKIE = "huddleup_session";
 const SESSION_DAYS = 365;
+
+function toMember(user: User): MemberIdentity {
+  return {
+    id: user.id,
+    displayName: user.displayName,
+    color: user.color,
+    userCode: user.userCode ?? "",
+  };
+}
+
+async function ensureUserCode(user: User, db: Awaited<ReturnType<typeof readDb>>): Promise<User> {
+  if (user.userCode) return user;
+  user.userCode = uniqueUserCode(db.users.map((u) => u.userCode).filter(Boolean) as string[]);
+  const index = db.users.findIndex((u) => u.id === user.id);
+  if (index !== -1) {
+    db.users[index] = user;
+    await writeDb(db);
+  }
+  return user;
+}
 
 export async function getSessionUser(): Promise<MemberIdentity | null> {
   const cookieStore = await cookies();
@@ -25,11 +45,8 @@ export async function getSessionUser(): Promise<MemberIdentity | null> {
   const user = db.users.find((u) => u.id === session.userId);
   if (!user) return null;
 
-  return {
-    id: user.id,
-    displayName: user.displayName,
-    color: user.color,
-  };
+  const withCode = await ensureUserCode(user, db);
+  return toMember(withCode);
 }
 
 export async function requireSession(): Promise<MemberIdentity | NextResponse> {
@@ -46,10 +63,29 @@ export function isSessionError(
   return result instanceof NextResponse;
 }
 
+async function createSessionForUser(user: User): Promise<Session> {
+  const db = await readDb();
+  const now = new Date();
+  const expiresAt = new Date(now);
+  expiresAt.setDate(expiresAt.getDate() + SESSION_DAYS);
+
+  const session: Session = {
+    id: crypto.randomUUID(),
+    userId: user.id,
+    createdAt: now.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+  };
+
+  db.sessions.push(session);
+  await writeDb(db);
+  return session;
+}
+
 export async function createUserSession(displayName: string): Promise<{
   user: User;
   session: Session;
   member: MemberIdentity;
+  isNew: boolean;
 }> {
   const safeName = sanitizeDisplayName(displayName);
   if (!safeName) {
@@ -65,6 +101,7 @@ export async function createUserSession(displayName: string): Promise<{
     id: crypto.randomUUID(),
     displayName: safeName,
     color: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
+    userCode: uniqueUserCode(db.users.map((u) => u.userCode).filter(Boolean) as string[]),
     createdAt: now.toISOString(),
   };
 
@@ -82,7 +119,30 @@ export async function createUserSession(displayName: string): Promise<{
   return {
     user,
     session,
-    member: { id: user.id, displayName: user.displayName, color: user.color },
+    member: toMember(user),
+    isNew: true,
+  };
+}
+
+export async function loginWithUserCode(userCode: string): Promise<{
+  user: User;
+  session: Session;
+  member: MemberIdentity;
+} | null> {
+  const normalized = userCode.trim().toUpperCase();
+  if (normalized.length !== 8) return null;
+
+  const db = await readDb();
+  const user = db.users.find((u) => u.userCode?.toUpperCase() === normalized);
+  if (!user) return null;
+
+  const withCode = await ensureUserCode(user, db);
+  const session = await createSessionForUser(withCode);
+
+  return {
+    user: withCode,
+    session,
+    member: toMember(withCode),
   };
 }
 
@@ -96,12 +156,19 @@ export async function destroySession(): Promise<void> {
   await writeDb(db);
 }
 
-export function sessionCookieOptions(sessionId: string) {
+export function isSecureRequest(request: Request): boolean {
+  const forwarded = request.headers.get("x-forwarded-proto");
+  if (forwarded) return forwarded.split(",")[0].trim() === "https";
+  return new URL(request.url).protocol === "https:";
+}
+
+export function sessionCookieOptions(sessionId: string, request?: Request) {
+  const secure = request ? isSecureRequest(request) : process.env.NODE_ENV === "production";
   return {
     name: SESSION_COOKIE,
     value: sessionId,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
     sameSite: "lax" as const,
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,

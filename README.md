@@ -19,7 +19,18 @@ npm install
 npm run dev
 ```
 
-Enter your display name on first visit. Your session is stored server-side in `.data/db.json`.
+On first visit, enter your display name and **save your 8-character personal code**. That code restores your identity so you don't appear as a new collaborator on return visits.
+
+- **Personal code** (8 chars) — your permanent identity
+- **Project invite code** (6 chars) — join a specific list
+
+## Design
+
+- **Canvas:** matte stone `#E8E8E4`
+- **Accent:** neon lime `#C8FF00` (buttons, progress bars, logo UP)
+- **Logo:** HUDDLE wordmark + black house icon with neon UP inside
+
+Sessions are stored server-side in `.data/db.json` via HTTP-only cookies.
 
 ## Hostinger deploy
 
