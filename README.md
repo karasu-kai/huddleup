@@ -28,7 +28,7 @@ On first visit, enter your display name and **save your 8-character personal cod
 
 - **Canvas:** matte stone `#E8E8E4`
 - **Accent:** neon lime `#C8FF00` (buttons, progress bars, logo UP)
-- **Logo:** black app tile with neon house mark + lowercase **huddle up** wordmark
+- **Logo:** black app tile with neon house mark + dark **Huddle Up** wordmark (neon accent only in the icon)
 
 Sessions are stored server-side in `.data/db.json` via HTTP-only cookies.
 
