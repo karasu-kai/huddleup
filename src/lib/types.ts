@@ -17,6 +17,7 @@ export type Project = {
   id: string;
   name: string;
   overallBudget: number | null;
+  currency: string;
   inviteCode: string;
   createdAt: string;
 };

@@ -1,8 +1,14 @@
-export function formatCurrency(amount: number | null | undefined): string {
+import { DEFAULT_CURRENCY, normalizeCurrency } from "@/lib/currency";
+
+export function formatCurrency(
+  amount: number | null | undefined,
+  currency: string = DEFAULT_CURRENCY,
+): string {
   if (amount == null) return "—";
+  const code = normalizeCurrency(currency);
   return new Intl.NumberFormat(undefined, {
     style: "currency",
-    currency: "USD",
+    currency: code,
     maximumFractionDigits: 0,
   }).format(amount);
 }

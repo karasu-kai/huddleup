@@ -20,7 +20,8 @@ import { AddItemSheet, type ItemFormData } from "@/components/AddItemSheet";
 import { AvatarStack } from "@/components/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
-import { Input, Label } from "@/components/ui/Input";
+import { Input, Label, Select } from "@/components/ui/Input";
+import { CURRENCIES, normalizeCurrency } from "@/lib/currency";
 
 type ProjectData = {
   project: Project;
@@ -79,6 +80,7 @@ export default function ProjectPage() {
   }
 
   const { project, tabs, items, votes, comments, members, totalSpent } = data;
+  const currency = normalizeCurrency(project.currency);
 
   const filteredItems =
     activeTabId === "all"
@@ -224,6 +226,7 @@ export default function ProjectPage() {
               <ItemCard
                 key={item.id}
                 item={item}
+                currency={currency}
                 votes={votes.filter((v) => v.itemId === item.id)}
                 comments={comments}
                 members={members}
@@ -257,6 +260,7 @@ export default function ProjectPage() {
                     <ItemCard
                       key={item.id}
                       item={item}
+                      currency={currency}
                       votes={votes.filter((v) => v.itemId === item.id)}
                       comments={comments}
                       members={members}
@@ -290,6 +294,7 @@ export default function ProjectPage() {
         <BudgetBar
           spent={totalSpent}
           budget={project.overallBudget}
+          currency={currency}
         />
       </div>
 
@@ -402,12 +407,14 @@ function ProjectSettingsSheet({
 }) {
   const [name, setName] = useState(project.name);
   const [budget, setBudget] = useState(project.overallBudget?.toString() ?? "");
+  const [currency, setCurrency] = useState(normalizeCurrency(project.currency));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
       setName(project.name);
       setBudget(project.overallBudget?.toString() ?? "");
+      setCurrency(normalizeCurrency(project.currency));
     }
   }, [open, project]);
 
@@ -420,6 +427,7 @@ function ProjectSettingsSheet({
         body: JSON.stringify({
           name,
           overallBudget: budget ? Number(budget) : null,
+          currency,
         }),
       });
       await onUpdate();
@@ -451,6 +459,16 @@ function ProjectSettingsSheet({
         <div>
           <Label>Project name</Label>
           <Input value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div>
+          <Label>Currency</Label>
+          <Select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            {CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </Select>
         </div>
         <div>
           <Label>Overall budget</Label>

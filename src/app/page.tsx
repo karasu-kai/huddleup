@@ -13,9 +13,10 @@ import {
 import { api, formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Input, Label } from "@/components/ui/Input";
+import { Input, Label, Select } from "@/components/ui/Input";
 import { Sheet } from "@/components/ui/Sheet";
 import { Logo } from "@/components/Logo";
+import { DEFAULT_CURRENCY, CURRENCIES } from "@/lib/currency";
 
 type OnboardingMode = "welcome" | "new" | "returning";
 
@@ -277,16 +278,16 @@ export default function HomePage() {
                       <p className="mt-1 text-sm text-text-secondary">
                         {project.doneCount}/{project.itemCount} done
                         {project.overallBudget != null &&
-                          ` · ${formatCurrency(project.totalSpent)} spent`}
+                          ` · ${formatCurrency(project.totalSpent, project.currency)} spent`}
                       </p>
                     </div>
                     {project.overallBudget != null && (
                       <div className="text-right">
                         <p className="tabular-nums text-sm font-medium">
-                          {formatCurrency(project.totalSpent)}
+                          {formatCurrency(project.totalSpent, project.currency)}
                         </p>
                         <p className="tabular-nums text-xs text-text-tertiary">
-                          of {formatCurrency(project.overallBudget)}
+                          of {formatCurrency(project.overallBudget, project.currency)}
                         </p>
                       </div>
                     )}
@@ -370,6 +371,7 @@ function CreateProjectSheet({
 }) {
   const [name, setName] = useState("");
   const [budget, setBudget] = useState("");
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -382,6 +384,7 @@ function CreateProjectSheet({
         body: JSON.stringify({
           name,
           overallBudget: budget ? Number(budget) : null,
+          currency,
         }),
       });
       onCreated(project.id);
@@ -403,6 +406,16 @@ function CreateProjectSheet({
             autoFocus
             required
           />
+        </div>
+        <div>
+          <Label>Currency</Label>
+          <Select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            {CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </Select>
         </div>
         <div>
           <Label>Overall budget (optional)</Label>

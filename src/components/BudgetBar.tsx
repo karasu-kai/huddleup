@@ -6,10 +6,12 @@ import { cn } from "@/lib/utils";
 export function BudgetBar({
   spent,
   budget,
+  currency = "AUD",
   label = "Budget",
 }: {
   spent: number;
   budget: number | null;
+  currency?: string;
   label?: string;
 }) {
   if (budget == null || budget === 0) {
@@ -18,7 +20,7 @@ export function BudgetBar({
         <div className="flex items-center justify-between text-sm">
           <span className="text-text-secondary">{label}</span>
           <span className="tabular-nums font-semibold text-text-primary">
-            {formatCurrency(spent)} spent
+            {formatCurrency(spent, currency)} spent
           </span>
         </div>
       </div>
@@ -33,7 +35,7 @@ export function BudgetBar({
       <div className="mb-2 flex items-center justify-between text-sm">
         <span className="text-text-secondary">{label}</span>
         <span className={cn("tabular-nums font-semibold", over && "text-warning")}>
-          {formatCurrency(spent)} / {formatCurrency(budget)}
+          {formatCurrency(spent, currency)} / {formatCurrency(budget, currency)}
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-surface-muted">
@@ -47,7 +49,7 @@ export function BudgetBar({
       </div>
       {over && (
         <p className="mt-1.5 text-xs text-warning">
-          {formatCurrency(spent - budget)} over — worth it?
+          {formatCurrency(spent - budget, currency)} over — worth it?
         </p>
       )}
     </div>

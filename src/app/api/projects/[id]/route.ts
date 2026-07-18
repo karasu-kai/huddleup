@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readDb, writeDb } from "@/lib/db/local";
+import { normalizeCurrency } from "@/lib/currency";
 import { requireProjectMember, isSessionError } from "@/lib/session";
 
 type Params = { params: Promise<{ id: string }> };
@@ -40,7 +41,10 @@ export async function GET(_request: Request, { params }: Params) {
   );
 
   return NextResponse.json({
-    project,
+    project: {
+      ...project,
+      currency: normalizeCurrency(project.currency),
+    },
     tabs,
     items,
     votes,
@@ -68,9 +72,15 @@ export async function PATCH(request: Request, { params }: Params) {
   if (body.overallBudget !== undefined) {
     db.projects[index].overallBudget = body.overallBudget;
   }
+  if (body.currency !== undefined) {
+    db.projects[index].currency = normalizeCurrency(body.currency);
+  }
 
   await writeDb(db);
-  return NextResponse.json(db.projects[index]);
+  return NextResponse.json({
+    ...db.projects[index],
+    currency: normalizeCurrency(db.projects[index].currency),
+  });
 }
 
 export async function DELETE(_request: Request, { params }: Params) {

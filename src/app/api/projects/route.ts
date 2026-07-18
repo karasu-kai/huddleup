@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readDb, writeDb, generateInviteCode } from "@/lib/db/local";
+import { normalizeCurrency } from "@/lib/currency";
 import { requireSession, isSessionError } from "@/lib/session";
 import type { Project, ProjectMember, Tab } from "@/lib/types";
 
@@ -22,6 +23,7 @@ export async function GET() {
       .reduce((sum, i) => sum + (i.cost ?? 0), 0);
     return {
       ...project,
+      currency: normalizeCurrency(project.currency),
       itemCount: items.length,
       doneCount: items.filter((i) => i.done).length,
       totalSpent,
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
   if (isSessionError(auth)) return auth;
 
   const body = await request.json();
-  const { name, overallBudget } = body;
+  const { name, overallBudget, currency } = body;
 
   if (!name?.trim()) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -49,6 +51,7 @@ export async function POST(request: Request) {
     id: crypto.randomUUID(),
     name: name.trim(),
     overallBudget: overallBudget ?? null,
+    currency: normalizeCurrency(currency),
     inviteCode: generateInviteCode(),
     createdAt: now,
   };

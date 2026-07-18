@@ -8,6 +8,7 @@ import { Avatar } from "./Avatar";
 
 type ItemCardProps = {
   item: Item;
+  currency?: string;
   votes: Vote[];
   comments: Comment[];
   members: ProjectMember[];
@@ -25,6 +26,7 @@ function formatUrlLabel(url: string) {
 
 export function ItemCard({
   item,
+  currency = "AUD",
   votes,
   comments,
   members,
@@ -95,7 +97,7 @@ export function ItemCard({
               </span>
               <span className="flex shrink-0 items-center gap-1.5 text-xs text-text-secondary">
                 {item.cost != null && (
-                  <span className="tabular-nums">{formatCurrency(item.cost)}</span>
+                  <span className="tabular-nums">{formatCurrency(item.cost, currency)}</span>
                 )}
                 {href && <span aria-hidden>🔗</span>}
                 {item.imageUrl && <span aria-hidden>📷</span>}
@@ -152,9 +154,9 @@ export function ItemCard({
 
               {(item.cost != null || item.budget != null) && (
                 <p className="mt-1 tabular-nums text-sm text-text-secondary">
-                  {item.cost != null && formatCurrency(item.cost)}
+                  {item.cost != null && formatCurrency(item.cost, currency)}
                   {item.cost != null && item.budget != null && " · "}
-                  {item.budget != null && `budget ${formatCurrency(item.budget)}`}
+                  {item.budget != null && `budget ${formatCurrency(item.budget, currency)}`}
                 </p>
               )}
 

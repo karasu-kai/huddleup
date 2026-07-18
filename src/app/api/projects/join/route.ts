@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readDb, writeDb } from "@/lib/db/local";
+import { normalizeCurrency } from "@/lib/currency";
 import { requireSession, isSessionError } from "@/lib/session";
 import type { ProjectMember } from "@/lib/types";
 
@@ -40,5 +41,7 @@ export async function POST(request: Request) {
     await writeDb(db);
   }
 
-  return NextResponse.json({ project });
+  return NextResponse.json({
+    project: { ...project, currency: normalizeCurrency(project.currency) },
+  });
 }
