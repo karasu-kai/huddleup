@@ -45,11 +45,33 @@ Sessions are stored server-side in `.data/db.json` via HTTP-only cookies.
 
 **Do not** deploy as static.
 
-**Critical:** Ensure `.data/` and `public/uploads/` persist across redeploys, or all lists and photos will be wiped.
+### Persistent storage (required for production)
 
-No env vars required.
+Hostinger **rebuilds the app folder on every deploy**. If the database lives inside that folder (default `.data/`), **personal codes, projects, and lists are wiped** each time.
 
-**After a deploy:** If you still see old colours or the old logo once, hard-refresh the page (or clear site data if you added Huddle Up to your home screen). The app now sends no-cache headers so future visits should always pick up the latest version.
+Set these **environment variables** in Hostinger → Node.js Web App → Environment (paths **outside** the deploy folder):
+
+| Variable | Purpose |
+|----------|---------|
+| `HUDDLEUP_DATA_DIR` | `db.json` — users, personal codes, projects, items |
+| `HUDDLEUP_UPLOADS_DIR` | Item photos (optional; defaults to in-app `public/uploads`) |
+
+Example paths (adjust for your Hostinger account):
+
+```bash
+HUDDLEUP_DATA_DIR=/home/YOUR_USER/domains/huddleup.wtf/private/huddleup-data
+HUDDLEUP_UPLOADS_DIR=/home/YOUR_USER/domains/huddleup.wtf/private/huddleup-uploads
+```
+
+One-time setup via SSH:
+
+```bash
+bash scripts/hostinger-persistent-data.sh
+```
+
+The app also keeps `db.json.bak` and restores from it if the main file is missing or corrupt after a bad deploy.
+
+**After a deploy:** Hard-refresh once if you see an old UI. Personal codes only work if `HUDDLEUP_DATA_DIR` still points at the same folder as before.
 
 ## Project structure
 

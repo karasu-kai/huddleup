@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/:filename",
+        destination: "/api/files/:filename",
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
+import { getUploadsDir } from "@/lib/paths";
 import { requireSession, isSessionError } from "@/lib/session";
 import { extensionForMime, validateImageUpload, detectImageMime } from "@/lib/security";
 
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
   const mime = detectImageMime(buffer)!;
   const ext = extensionForMime(mime);
   const filename = `${crypto.randomUUID()}.${ext}`;
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
+  const uploadsDir = getUploadsDir();
 
   await fs.mkdir(uploadsDir, { recursive: true });
   await fs.writeFile(path.join(uploadsDir, filename), buffer);
