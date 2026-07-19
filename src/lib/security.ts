@@ -1,4 +1,10 @@
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
 const MAX_DISPLAY_NAME = 40;
+const MIN_PASSWORD_LENGTH = 8;
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -21,6 +27,40 @@ export function sanitizeDisplayName(name: string): string | null {
   const trimmed = name.trim().replace(/[\x00-\x1f\x7f]/g, "");
   if (!trimmed || trimmed.length > MAX_DISPLAY_NAME) return null;
   return trimmed;
+}
+
+export function sanitizeEmail(email: string): string | null {
+  const trimmed = email.trim().toLowerCase();
+  if (!trimmed || trimmed.length > 254) return null;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return null;
+  return trimmed;
+}
+
+export function validatePassword(password: string): string | null {
+  if (typeof password !== "string" || password.length < MIN_PASSWORD_LENGTH) {
+    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+  }
+  if (password.length > 128) return "Password is too long";
+  return null;
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const derived = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${salt}:${derived.toString("hex")}`;
+}
+
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  const [salt, hash] = stored.split(":");
+  if (!salt || !hash) return false;
+  try {
+    const derived = (await scryptAsync(password, salt, 64)) as Buffer;
+    const hashBuf = Buffer.from(hash, "hex");
+    if (derived.length !== hashBuf.length) return false;
+    return timingSafeEqual(derived, hashBuf);
+  } catch {
+    return false;
+  }
 }
 
 export function isValidSessionId(id: string): boolean {

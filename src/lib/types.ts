@@ -1,5 +1,7 @@
 export type User = {
   id: string;
+  email: string;
+  passwordHash: string;
   displayName: string;
   color: string;
   userCode?: string;
@@ -84,8 +86,8 @@ export type Database = {
 export type MemberIdentity = {
   id: string;
   displayName: string;
+  email: string;
   color: string;
-  userCode: string;
 };
 
 export type ProjectWithMeta = Project & {

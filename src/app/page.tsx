@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import type { ProjectWithMeta } from "@/lib/types";
 import type { MemberIdentity } from "@/lib/types";
 import {
-  createSession,
   fetchSession,
-  loginWithCode,
+  loginWithEmail,
   logoutSession,
+  registerAccount,
 } from "@/lib/member";
 import { api, formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -18,19 +18,17 @@ import { Sheet } from "@/components/ui/Sheet";
 import { Logo } from "@/components/Logo";
 import { DEFAULT_CURRENCY, CURRENCIES } from "@/lib/currency";
 
-type OnboardingMode = "welcome" | "new" | "returning";
+type OnboardingMode = "welcome" | "login" | "register";
 
 export default function HomePage() {
   const router = useRouter();
   const [member, setMember] = useState<MemberIdentity | null>(null);
   const [nameInput, setNameInput] = useState("");
-  const [codeInput, setCodeInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
   const [onboardingMode, setOnboardingMode] = useState<OnboardingMode>("welcome");
   const [authError, setAuthError] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
-  const [showSaveCode, setShowSaveCode] = useState(false);
-  const [newUserCode, setNewUserCode] = useState("");
-  const [copied, setCopied] = useState(false);
   const [projects, setProjects] = useState<ProjectWithMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -54,49 +52,39 @@ export default function HomePage() {
     }
   }
 
-  async function handleCreateAccount(e: React.FormEvent) {
+  async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-    if (!nameInput.trim()) return;
+    if (!nameInput.trim() || !emailInput.trim() || !passwordInput) return;
     setAuthLoading(true);
     setAuthError("");
     try {
-      const { member: m, isNew } = await createSession(nameInput);
+      const { member: m } = await registerAccount(
+        emailInput,
+        passwordInput,
+        nameInput,
+      );
       setMember(m);
-      if (isNew && m.userCode) {
-        setNewUserCode(m.userCode);
-        setShowSaveCode(true);
-      }
       loadProjects();
     } catch (err) {
-      setAuthError(err instanceof Error ? err.message : "Could not sign in");
+      setAuthError(err instanceof Error ? err.message : "Could not create account");
     } finally {
       setAuthLoading(false);
     }
   }
 
-  async function handleLoginWithCode(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!codeInput.trim()) return;
+    if (!emailInput.trim() || !passwordInput) return;
     setAuthLoading(true);
     setAuthError("");
     try {
-      const { member: m } = await loginWithCode(codeInput);
+      const { member: m } = await loginWithEmail(emailInput, passwordInput);
       setMember(m);
       loadProjects();
     } catch (err) {
-      setAuthError(err instanceof Error ? err.message : "Invalid code");
+      setAuthError(err instanceof Error ? err.message : "Invalid email or password");
     } finally {
       setAuthLoading(false);
-    }
-  }
-
-  async function handleCopyCode(code: string) {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard unavailable */
     }
   }
 
@@ -106,7 +94,8 @@ export default function HomePage() {
     setProjects([]);
     setOnboardingMode("welcome");
     setNameInput("");
-    setCodeInput("");
+    setEmailInput("");
+    setPasswordInput("");
     setLoading(false);
   }
 
@@ -116,7 +105,8 @@ export default function HomePage() {
         <div className="w-full max-w-md text-center">
           <Logo centered />
           <p className="mx-auto mt-5 max-w-xs text-base leading-relaxed text-text-secondary sm:mt-6 sm:max-w-sm sm:text-lg">
-            Shared lists for anything you&apos;re planning together.
+            Shared lists for anything you&apos;re planning together. Sign in with your email
+            to keep your projects.
           </p>
 
           {onboardingMode === "welcome" && (
@@ -125,42 +115,57 @@ export default function HomePage() {
                 className="w-full"
                 size="lg"
                 onClick={() => {
-                  setOnboardingMode("new");
+                  setOnboardingMode("login");
                   setAuthError("");
                 }}
               >
-                Get started
+                Sign in
               </Button>
               <Button
                 variant="secondary"
                 className="w-full"
                 size="lg"
                 onClick={() => {
-                  setOnboardingMode("returning");
+                  setOnboardingMode("register");
                   setAuthError("");
                 }}
               >
-                I have a personal code
+                Create account
               </Button>
             </div>
           )}
 
-          {onboardingMode === "new" && (
+          {onboardingMode === "login" && (
             <form
-              onSubmit={handleCreateAccount}
+              onSubmit={handleLogin}
               className="mx-auto mt-10 max-w-sm space-y-4 text-left sm:mt-12"
             >
-              <Label>Your name</Label>
-              <Input
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                placeholder="Alex"
-                autoFocus
-                required
-              />
+              <div>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  autoFocus
+                  required
+                />
+              </div>
+              <div>
+                <Label>Password</Label>
+                <Input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Your password"
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
               {authError && <p className="text-sm text-warning">{authError}</p>}
               <Button type="submit" className="w-full" size="lg" disabled={authLoading}>
-                {authLoading ? "Creating..." : "Continue"}
+                {authLoading ? "Signing in..." : "Sign in"}
               </Button>
               <button
                 type="button"
@@ -172,29 +177,48 @@ export default function HomePage() {
             </form>
           )}
 
-          {onboardingMode === "returning" && (
+          {onboardingMode === "register" && (
             <form
-              onSubmit={handleLoginWithCode}
+              onSubmit={handleRegister}
               className="mx-auto mt-10 max-w-sm space-y-4 text-left sm:mt-12"
             >
               <div>
-                <Label>Personal code</Label>
-                <p className="mt-1 text-xs text-text-tertiary">
-                  Your 8-character code from when you first signed up.
-                </p>
+                <Label>Your name</Label>
+                <Input
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder="Alex"
+                  autoComplete="name"
+                  autoFocus
+                  required
+                />
               </div>
-              <Input
-                value={codeInput}
-                onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-                placeholder="AB12CD34"
-                className="text-center text-lg tracking-widest uppercase"
-                maxLength={8}
-                autoFocus
-                required
-              />
+              <div>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                />
+              </div>
+              <div>
+                <Label>Password</Label>
+                <Input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="At least 8 characters"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                />
+              </div>
               {authError && <p className="text-sm text-warning">{authError}</p>}
               <Button type="submit" className="w-full" size="lg" disabled={authLoading}>
-                {authLoading ? "Signing in..." : "Sign in"}
+                {authLoading ? "Creating..." : "Create account"}
               </Button>
               <button
                 type="button"
@@ -217,22 +241,14 @@ export default function HomePage() {
           <div />
           <Logo compact centered />
           <div className="flex min-w-0 items-center justify-end gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleCopyCode(member.userCode)}
-              className="flex min-w-0 max-w-[9rem] items-center gap-1 rounded-full bg-surface px-2.5 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-muted sm:max-w-none sm:px-3"
-              title="Copy your personal code"
-            >
-              <span className="truncate">{member.displayName}</span>
-              <span className="shrink-0 tabular-nums tracking-wider text-text-tertiary">
-                {member.userCode}
-              </span>
-              {copied ? (
-                <span className="shrink-0 text-text-primary">✓</span>
-              ) : (
-                <span className="shrink-0 text-text-tertiary">⎘</span>
-              )}
-            </button>
+            <div className="min-w-0 max-w-[10rem] truncate text-right sm:max-w-[12rem]">
+              <p className="truncate text-xs font-medium text-text-primary">
+                {member.displayName}
+              </p>
+              <p className="truncate text-[10px] text-text-tertiary sm:text-xs">
+                {member.email}
+              </p>
+            </div>
             <button
               type="button"
               onClick={handleSignOut}
@@ -311,34 +327,6 @@ export default function HomePage() {
           </div>
         )}
       </main>
-
-      <Sheet
-        open={showSaveCode}
-        onClose={() => setShowSaveCode(false)}
-        title="Save your personal code"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-text-secondary">
-            This is your permanent identity in Huddle Up. Save it somewhere safe — you&apos;ll
-            need it if you switch browsers or your session expires.
-          </p>
-          <div className="rounded-2xl bg-surface-muted px-4 py-5 text-center">
-            <p className="text-2xl font-semibold tracking-[0.2em] text-text-primary">
-              {newUserCode}
-            </p>
-          </div>
-          <Button className="w-full" onClick={() => handleCopyCode(newUserCode)}>
-            {copied ? "Copied!" : "Copy code"}
-          </Button>
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={() => setShowSaveCode(false)}
-          >
-            I&apos;ve saved it
-          </Button>
-        </div>
-      </Sheet>
 
       <CreateProjectSheet
         open={showCreate}

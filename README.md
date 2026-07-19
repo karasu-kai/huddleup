@@ -19,9 +19,9 @@ npm install
 npm run dev
 ```
 
-On first visit, enter your display name and **save your 8-character personal code**. That code restores your identity so you don't appear as a new collaborator on return visits.
+On first visit, **create an account** with your email and password. Sign back in anytime — your projects stay tied to your email.
 
-- **Personal code** (8 chars) — your permanent identity
+- **Email + password** — your account (stored securely on the server)
 - **Project invite code** (6 chars) — join a specific list
 
 ## Design
@@ -47,13 +47,13 @@ Sessions are stored server-side in `.data/db.json` via HTTP-only cookies.
 
 ### Persistent storage (required for production)
 
-Hostinger **rebuilds the app folder on every deploy**. If the database lives inside that folder (default `.data/`), **personal codes, projects, and lists are wiped** each time.
+Hostinger **rebuilds the app folder on every deploy**. If the database lives inside that folder (default `.data/`), **accounts, projects, and lists are wiped** each time.
 
 Set these **environment variables** in Hostinger → Node.js Web App → Environment (paths **outside** the deploy folder):
 
 | Variable | Purpose |
 |----------|---------|
-| `HUDDLEUP_DATA_DIR` | `db.json` — users, personal codes, projects, items |
+| `HUDDLEUP_DATA_DIR` | `db.json` — users, accounts, projects, items |
 | `HUDDLEUP_UPLOADS_DIR` | Item photos (optional; defaults to in-app `public/uploads`) |
 
 Example paths (adjust for your Hostinger account):
@@ -71,7 +71,7 @@ bash scripts/hostinger-persistent-data.sh
 
 The app also keeps `db.json.bak` and restores from it if the main file is missing or corrupt after a bad deploy.
 
-**After a deploy:** Hard-refresh once if you see an old UI. Personal codes only work if `HUDDLEUP_DATA_DIR` still points at the same folder as before.
+**After a deploy:** Hard-refresh once if you see an old UI. Accounts only persist if `HUDDLEUP_DATA_DIR` still points at the same folder as before.
 
 ## Project structure
 

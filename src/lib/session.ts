@@ -1,8 +1,15 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { readDb, writeDb, uniqueUserCode } from "@/lib/db/local";
+import { readDb, writeDb } from "@/lib/db/local";
 import { AVATAR_COLORS, type MemberIdentity, type Session, type User } from "@/lib/types";
-import { isValidSessionId, sanitizeDisplayName } from "@/lib/security";
+import {
+  hashPassword,
+  isValidSessionId,
+  sanitizeDisplayName,
+  sanitizeEmail,
+  validatePassword,
+  verifyPassword,
+} from "@/lib/security";
 
 export const SESSION_COOKIE = "huddleup_session";
 const SESSION_DAYS = 365;
@@ -11,20 +18,9 @@ function toMember(user: User): MemberIdentity {
   return {
     id: user.id,
     displayName: user.displayName,
+    email: user.email,
     color: user.color,
-    userCode: user.userCode ?? "",
   };
-}
-
-async function ensureUserCode(user: User, db: Awaited<ReturnType<typeof readDb>>): Promise<User> {
-  if (user.userCode) return user;
-  user.userCode = uniqueUserCode(db.users.map((u) => u.userCode).filter(Boolean) as string[]);
-  const index = db.users.findIndex((u) => u.id === user.id);
-  if (index !== -1) {
-    db.users[index] = user;
-    await writeDb(db);
-  }
-  return user;
 }
 
 export async function getSessionUser(): Promise<MemberIdentity | null> {
@@ -43,10 +39,9 @@ export async function getSessionUser(): Promise<MemberIdentity | null> {
   }
 
   const user = db.users.find((u) => u.id === session.userId);
-  if (!user) return null;
+  if (!user || !user.email) return null;
 
-  const withCode = await ensureUserCode(user, db);
-  return toMember(withCode);
+  return toMember(user);
 }
 
 export async function requireSession(): Promise<MemberIdentity | NextResponse> {
@@ -81,27 +76,34 @@ async function createSessionForUser(user: User): Promise<Session> {
   return session;
 }
 
-export async function createUserSession(displayName: string): Promise<{
-  user: User;
-  session: Session;
-  member: MemberIdentity;
-  isNew: boolean;
-}> {
+export async function registerUser(
+  email: string,
+  password: string,
+  displayName: string,
+): Promise<{ user: User; session: Session; member: MemberIdentity }> {
+  const safeEmail = sanitizeEmail(email);
+  if (!safeEmail) throw new Error("Invalid email address");
+
+  const passwordError = validatePassword(password);
+  if (passwordError) throw new Error(passwordError);
+
   const safeName = sanitizeDisplayName(displayName);
-  if (!safeName) {
-    throw new Error("Invalid display name");
-  }
+  if (!safeName) throw new Error("Invalid display name");
 
   const db = await readDb();
+  if (db.users.some((u) => u.email?.toLowerCase() === safeEmail)) {
+    throw new Error("An account with this email already exists");
+  }
+
   const now = new Date();
-  const expiresAt = new Date(now);
-  expiresAt.setDate(expiresAt.getDate() + SESSION_DAYS);
+  const passwordHash = await hashPassword(password);
 
   const user: User = {
     id: crypto.randomUUID(),
+    email: safeEmail,
+    passwordHash,
     displayName: safeName,
     color: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
-    userCode: uniqueUserCode(db.users.map((u) => u.userCode).filter(Boolean) as string[]),
     createdAt: now.toISOString(),
   };
 
@@ -109,41 +111,32 @@ export async function createUserSession(displayName: string): Promise<{
     id: crypto.randomUUID(),
     userId: user.id,
     createdAt: now.toISOString(),
-    expiresAt: expiresAt.toISOString(),
+    expiresAt: new Date(now.getTime() + SESSION_DAYS * 86400000).toISOString(),
   };
 
   db.users.push(user);
   db.sessions.push(session);
   await writeDb(db);
 
-  return {
-    user,
-    session,
-    member: toMember(user),
-    isNew: true,
-  };
+  return { user, session, member: toMember(user) };
 }
 
-export async function loginWithUserCode(userCode: string): Promise<{
-  user: User;
-  session: Session;
-  member: MemberIdentity;
-} | null> {
-  const normalized = userCode.trim().toUpperCase();
-  if (normalized.length !== 8) return null;
+export async function loginWithEmail(
+  email: string,
+  password: string,
+): Promise<{ user: User; session: Session; member: MemberIdentity } | null> {
+  const safeEmail = sanitizeEmail(email);
+  if (!safeEmail || !password) return null;
 
   const db = await readDb();
-  const user = db.users.find((u) => u.userCode?.toUpperCase() === normalized);
-  if (!user) return null;
+  const user = db.users.find((u) => u.email?.toLowerCase() === safeEmail);
+  if (!user?.passwordHash) return null;
 
-  const withCode = await ensureUserCode(user, db);
-  const session = await createSessionForUser(withCode);
+  const valid = await verifyPassword(password, user.passwordHash);
+  if (!valid) return null;
 
-  return {
-    user: withCode,
-    session,
-    member: toMember(withCode),
-  };
+  const session = await createSessionForUser(user);
+  return { user, session, member: toMember(user) };
 }
 
 export async function destroySession(): Promise<void> {
@@ -172,6 +165,19 @@ export function sessionCookieOptions(sessionId: string, request?: Request) {
     sameSite: "lax" as const,
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,
+  };
+}
+
+export function clearSessionCookieOptions(request?: Request) {
+  const secure = request ? isSecureRequest(request) : process.env.NODE_ENV === "production";
+  return {
+    name: SESSION_COOKIE,
+    value: "",
+    httpOnly: true,
+    secure,
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: 0,
   };
 }
 

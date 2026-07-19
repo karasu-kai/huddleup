@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import {
-  createUserSession,
+  clearSessionCookieOptions,
   destroySession,
   getSessionUser,
-  loginWithUserCode,
+  loginWithEmail,
+  registerUser,
   sessionCookieOptions,
 } from "@/lib/session";
-import { sanitizeDisplayName } from "@/lib/security";
 
 export async function GET() {
   const member = await getSessionUser();
@@ -18,48 +18,37 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
+  const action = body.action === "register" ? "register" : "login";
+  const email = typeof body.email === "string" ? body.email : "";
+  const password = typeof body.password === "string" ? body.password : "";
+  const displayName = typeof body.displayName === "string" ? body.displayName : "";
 
-  const userCode =
-    typeof body.userCode === "string" ? body.userCode.trim().toUpperCase() : "";
-
-  if (userCode) {
-    const result = await loginWithUserCode(userCode);
-    if (!result) {
-      return NextResponse.json({ error: "Invalid personal code" }, { status: 404 });
+  try {
+    if (action === "register") {
+      const result = await registerUser(email, password, displayName);
+      const response = NextResponse.json({ member: result.member, isNew: true });
+      response.cookies.set(sessionCookieOptions(result.session.id, request));
+      return response;
     }
+
+    const result = await loginWithEmail(email, password);
+    if (!result) {
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    }
+
     const response = NextResponse.json({ member: result.member, isNew: false });
     response.cookies.set(sessionCookieOptions(result.session.id, request));
     return response;
-  }
-
-  const safeName = sanitizeDisplayName(
-    typeof body.displayName === "string" ? body.displayName : "",
-  );
-
-  if (!safeName) {
-    return NextResponse.json({ error: "Invalid display name" }, { status: 400 });
-  }
-
-  try {
-    const { session, member, isNew } = await createUserSession(safeName);
-    const response = NextResponse.json({ member, isNew });
-    response.cookies.set(sessionCookieOptions(session.id, request));
-    return response;
-  } catch {
-    return NextResponse.json({ error: "Could not create session" }, { status: 500 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not sign in";
+    const status = message.includes("already exists") ? 409 : 400;
+    return NextResponse.json({ error: message }, { status });
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   await destroySession();
   const response = NextResponse.json({ ok: true });
-  response.cookies.set({
-    name: "huddleup_session",
-    value: "",
-    httpOnly: true,
-    secure: false,
-    path: "/",
-    maxAge: 0,
-  });
+  response.cookies.set(clearSessionCookieOptions(request));
   return response;
 }

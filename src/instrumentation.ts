@@ -13,7 +13,7 @@ export async function register() {
 
   if (!process.env.HUDDLEUP_DATA_DIR?.trim()) {
     console.warn(
-      "[huddleup] HUDDLEUP_DATA_DIR is not set — redeploys will wipe personal codes and projects. " +
+      "[huddleup] HUDDLEUP_DATA_DIR is not set — redeploys will wipe accounts and projects. " +
         "Point it to persistent storage outside the deploy folder.",
     );
   }

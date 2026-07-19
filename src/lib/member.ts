@@ -12,30 +12,34 @@ export async function fetchSession(): Promise<MemberIdentity | null> {
   return data.member ?? null;
 }
 
-export async function createSession(displayName: string): Promise<AuthResult> {
+export async function registerAccount(
+  email: string,
+  password: string,
+  displayName: string,
+): Promise<AuthResult> {
   const res = await fetch("/api/auth/session", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ displayName }),
+    body: JSON.stringify({ action: "register", email, password, displayName }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Failed to sign in" }));
-    throw new Error(err.error || "Failed to sign in");
+    const err = await res.json().catch(() => ({ error: "Could not create account" }));
+    throw new Error(err.error || "Could not create account");
   }
   return res.json() as Promise<AuthResult>;
 }
 
-export async function loginWithCode(userCode: string): Promise<AuthResult> {
+export async function loginWithEmail(email: string, password: string): Promise<AuthResult> {
   const res = await fetch("/api/auth/session", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userCode }),
+    body: JSON.stringify({ action: "login", email, password }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Invalid code" }));
-    throw new Error(err.error || "Invalid code");
+    const err = await res.json().catch(() => ({ error: "Invalid email or password" }));
+    throw new Error(err.error || "Invalid email or password");
   }
   return res.json() as Promise<AuthResult>;
 }
