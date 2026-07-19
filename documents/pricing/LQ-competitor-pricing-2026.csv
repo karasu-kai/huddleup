@@ -1,0 +1,103 @@
+Code,Product,Specification,USD Cost (LQ US tier),AUD Cost,My RRP (AUD),Competitor RRP Avg (AUD),Benefits / Research Use
+L1-10,97% GH,10iu / 3ml,9.8,14.04,,89,Growth hormone axis; body composition and recovery research
+L1-12,97% GH,12iu / 3ml,13.4,19.19,,119,Higher-dose GH research; IGF-1 and metabolic signalling
+L2-5,HCG,5000iu / 3ml,12.2,17.47,,95,Gonadotropin signalling; fertility and hormonal axis research
+L2-10,HCG,10000iu / 3ml,22.3,31.94,,165,Higher-potency gonadotropin; endocrine pathway studies
+L3-75,HMG,75iu / 3ml,9.8,14.04,,85,Menopausal gonadotrophin; reproductive hormone research
+L4-500,NAD+,500mg / 5ml powder,8.5,12.17,,80,Cellular energy cofactor; mitochondrial and longevity pathways
+L4-1000,NAD+,1000mg / 10ml powder,15.2,21.77,,150,High-dose NAD+; sirtuin and metabolic restoration research
+Q1-5,Semaglutide,5mg / 3ml,5.1,7.3,,55,GLP-1 agonist; appetite and glucose regulation research
+Q1-10,Semaglutide,10mg / 3ml,6.8,9.74,,110,Benchmark GLP-1; metabolic and weight pathway studies
+Q1-15,Semaglutide,15mg / 3ml,10.2,14.61,,145,Mid-dose GLP-1; dose-response metabolic research
+Q1-20,Semaglutide,20mg / 3ml,13.5,19.33,,175,Higher-dose GLP-1; extended protocol research
+Q1-30,Semaglutide,30mg / 10ml,18.3,26.21,,220,Large-vial GLP-1; long-run metabolic studies
+Q1-50,Semaglutide,50mg / 10ml,28.8,41.25,,320,High-capacity GLP-1; bulk metabolic research
+Q1-60,Semaglutide,60mg / 10ml,32.5,46.55,,360,Maximum-capacity GLP-1 research vial
+Q2-5,Tirzepatide,5mg / 3ml,5.1,7.3,,65,Dual GLP-1/GIP agonist; incretin metabolic research
+Q2-10,Tirzepatide,10mg / 3ml,6.8,9.74,,140,Twincretin; advanced metabolic and weight research
+Q2-15,Tirzepatide,15mg / 3ml,10.2,14.61,,175,Mid-dose tirzepatide; dose-escalation studies
+Q2-20,Tirzepatide,20mg / 3ml,13.5,19.33,,210,Higher-dose dual agonist research
+Q2-30,Tirzepatide,30mg / 10ml,18.3,26.21,,260,Large-vial tirzepatide; extended metabolic protocols
+Q2-60,Tirzepatide,60mg / 10ml,32.5,46.55,,420,High-capacity tirzepatide research
+Q2-100,Tirzepatide,100mg / 10ml,47.4,67.89,,580,Ultra-high dose tirzepatide; long-duration research
+Q2-120,Tirzepatide,120mg / 10ml,56.9,81.49,,650,Maximum tirzepatide capacity research vial
+Q3-2,BPC-157,2mg / 3ml,4.1,5.87,,45,"Tissue repair peptide; gut, tendon and angiogenesis research"
+Q3-5,BPC-157,5mg / 3ml,5.1,7.3,,55,Mid-dose BPC-157; musculoskeletal recovery research
+Q3-10,BPC-157,10mg / 3ml,9.1,13.03,,80,Standard BPC-157; widely studied repair pathways
+Q3-15,BPC-157,15mg / 3ml,13.7,19.62,,110,Higher-dose BPC-157; injury recovery research
+Q3-20,BPC-157,20mg / 3ml,18.3,26.21,,145,Large-dose BPC-157; extended repair protocols
+Q3-25,BPC-157,25mg / 3ml,22.8,32.65,,175,Maximum single-vial BPC-157 research dose
+Q4-2,TB-500 (TB4),2mg / 3ml,6.1,8.74,,55,Thymosin beta-4; cell migration and wound healing
+Q4-5,TB-500 (TB4),5mg / 3ml,10.8,15.47,,75,Mid-dose TB-500; tissue remodelling research
+Q4-10,TB-500 (TB4),10mg / 3ml,22.0,31.51,,110,Standard TB-500; angiogenesis and repair studies
+Q4-20,TB-500 (TB4),20mg / 3ml,44.0,63.02,,195,High-dose TB-500; advanced recovery research
+Q5-50,GHK-Cu,50mg / 3ml,8.8,12.6,,70,Copper peptide; collagen synthesis and skin repair
+Q5-100,GHK-Cu,100mg / 3ml,16.9,24.2,,120,High-dose GHK-Cu; cosmetic and wound research
+Q7-1,IGF-1 LR3,1mg / 3ml,37.2,53.28,,165,Growth factor; muscle and cellular growth research
+Q11-10,PT-141 (Bremelanotide),10mg / 3ml,10.5,15.04,,95,Melanocortin agonist; sexual function pathway research
+Q12-10,MT-2 (Melanotan II),10mg / 3ml,8.1,11.6,,75,Melanocortin peptide; pigmentation and libido research
+Q17-2,CJC-1295 No DAC,2mg / 3ml,5.1,7.3,,50,GHRH analogue; pulsatile GH release research
+Q17-5,CJC-1295 No DAC,5mg / 3ml,11.8,16.9,,85,Mid-dose GHRH; GH axis stimulation
+Q17-10,CJC-1295 No DAC,10mg / 3ml,20.3,29.07,,145,Standard CJC no DAC; GH secretagogue research
+Q20-5,Ipamorelin,5mg / 3ml,5.1,7.3,,55,Selective GHRP; clean GH pulse without cortisol spike
+Q20-10,Ipamorelin,10mg / 3ml,10.2,14.61,,90,Standard ipamorelin; GH axis and recovery research
+Q22-2,Sermorelin,2mg / 3ml,5.4,7.73,,50,GHRH fragment; natural GH rhythm research
+Q22-5,Sermorelin,5mg / 3ml,10.8,15.47,,80,Mid-dose sermorelin; anti-ageing GH research
+Q22-10,Sermorelin,10mg / 3ml,21.0,30.08,,140,Standard sermorelin; GH deficiency model research
+Q23-5,Oxytocin,5mg / 3ml,8.5,12.17,,75,"Neuropeptide; bonding, mood and social behaviour research"
+Q23-10,Oxytocin,10mg / 3ml,13.5,19.33,,110,Higher-dose oxytocin; neuroendocrine studies
+Q24-5,Tesamorelin,5mg / 3ml,13.5,19.33,,110,GHRH analogue; visceral fat and GH research
+Q24-10,Tesamorelin,10mg / 3ml,27.1,38.81,,185,Standard tesamorelin; lipodystrophy and GH studies
+Q26-5,DSIP,5mg / 3ml,5.1,7.3,,55,Sleep-inducing peptide; circadian and sleep architecture research
+Q26-10,DSIP,10mg / 3ml,9.5,13.61,,85,Standard DSIP; delta sleep pathway studies
+Q27-10,Selank,10mg / 3ml,8.8,12.6,,80,Anxiolytic peptide; GABA and stress response research
+Q27-20,Selank,20mg / 3ml,16.7,23.92,,130,Higher-dose selank; cognitive and anxiety research
+Q28-10,Semax,10mg / 3ml,8.8,12.6,,80,Nootropic peptide; BDNF and neuroprotection research
+Q28-30,Semax,30mg / 3ml,23.8,34.09,,175,High-dose semax; cognitive enhancement research
+Q29-10,Epithalon (Epitalon),10mg / 3ml,6.8,9.74,,70,Telomerase peptide; longevity and pineal research
+Q30-10,MOTS-C (Human),10mg / 3ml,10.8,15.47,,90,Mitochondrial peptide; metabolic and exercise capacity research
+Q30-20,MOTS-C (Human),20mg / 3ml,21.7,31.08,,130,Mid-dose MOTS-C; AMPK and insulin sensitivity research
+Q30-40,MOTS-C (Human),40mg / 3ml,39.0,55.86,,165,High-dose MOTS-C; mitochondrial longevity research
+Q30-50,MOTS-C (Human),50mg / 3ml,48.7,69.75,,195,Maximum MOTS-C; advanced metabolic research
+Q32-5,Thymosin Alpha-1 (TA-1),5mg / 3ml,11.8,16.9,,95,Immune modulator; T-cell and antiviral research
+Q32-10,Thymosin Alpha-1 (TA-1),10mg / 3ml,22.0,31.51,,155,Standard TA-1; immune restoration research
+Q36-5,Retatrutide,5mg / 3ml,8.5,12.17,,75,Triple agonist entry dose; metabolic research
+Q36-10,Retatrutide,10mg / 3ml,13.5,19.33,,130,Triple GLP-1/GIP/glucagon; weight and metabolic research
+Q36-15,Retatrutide,15mg / 3ml,20.3,29.07,,175,Mid-dose retatrutide; dose-response metabolic studies
+Q36-20,Retatrutide,20mg / 3ml,27.1,38.81,,220,Higher-dose retatrutide; advanced metabolic research
+Q36-30,Retatrutide,30mg / 10ml,32.0,45.83,,265,Large-vial retatrutide; extended protocol research
+Q36-60,Retatrutide,60mg / 10ml,54.8,78.48,,420,High-capacity retatrutide research vial
+Y6-20,Pinealon,20mg / 3ml,14.2,20.34,,95,Bioregulator; brain tissue and cognitive ageing research
+Y7-5,TB-500 Frag (17-23),5mg / 3ml,5.4,7.73,,55,TB4 fragment; targeted actin and migration research
+Y7-10,TB-500 Frag (17-23),10mg / 3ml,10.8,15.47,,85,Standard TB fragment; wound healing research
+Y7-20,TB-500 Frag (17-23),20mg / 3ml,17.3,24.78,,130,High-dose TB fragment; tissue repair studies
+Y23-10,KPV,10mg / 3ml,8.5,12.17,,75,Anti-inflammatory tripeptide; gut and skin inflammation research
+Y34-20,Vilon,20mg / 3ml,14.2,20.34,,90,Bioregulator; immune system modulation research
+Y38-5,SS-31 (Elamipretide),5mg / 3ml,6.8,9.74,,65,Mitochondrial peptide; oxidative stress and cardioprotection research
+Y38-10,SS-31 (Elamipretide),10mg / 3ml,13.5,19.33,,110,Standard SS-31; mitochondrial membrane research
+Y38-50,SS-31 (Elamipretide),50mg / 3ml,60.9,87.22,,195,High-dose SS-31; advanced mitochondrial research
+Y41-20,Vesugen,20mg / 3ml,13.5,19.33,,90,Bioregulator; vascular and endothelial research
+Y42-20,Testagen,20mg / 3ml,16.9,24.2,,95,Bioregulator; testicular tissue and hormonal research
+Y43-20,Chonluten,20mg / 3ml,13.5,19.33,,90,Bioregulator; lung and bronchial tissue research
+Y46-20,Livagen,20mg / 3ml,16.9,24.2,,95,Bioregulator; liver tissue and detoxification research
+Y47-20,Cardiogen,20mg / 3ml,13.5,19.33,,90,Bioregulator; cardiac tissue and cardiovascular research
+Y63-20,Prostamax,20mg / 3ml,13.5,19.33,,90,Bioregulator; prostate tissue research
+Y64-20,Cartalax,20mg / 3ml,13.5,19.33,,90,Bioregulator; cartilage and joint tissue research
+Y76-20,Pancragen,20mg / 3ml,14.2,20.34,,95,Bioregulator; pancreatic tissue research
+Y77-20,Cortagen,20mg / 3ml,15.2,21.77,,95,Bioregulator; adrenal and stress-axis research
+Y78-20,Ovagen,20mg / 3ml,15.2,21.77,,95,Bioregulator; ovarian tissue research
+TB-5/5,Blend BPC-157 + TB-500,5mg+5mg / 3ml,14.2,20.34,,120,Dual repair stack; combined tendon and migration pathways
+TB-10/10,Blend BPC-157 + TB-500,10mg+10mg / 3ml,27.1,38.81,,185,Standard repair blend; synergistic tissue recovery research
+BTG-10/10/50,Blend BPC-157 + TB-500 + GHK-Cu,10+10+50mg / 5ml,33.8,48.41,,175,"GLOW-style stack; repair, copper peptide and remodelling"
+BTGK-10/10/50/10,KLOW Blend (BPC+TB+GHK+KPV),10+10+50+10mg / 5ml,38.9,55.71,,280,"Four-compound stack; repair, skin, and anti-inflammatory research"
+CI-5/5,Blend CJC-1295 + Ipamorelin,5mg+5mg / 3ml,15.2,21.77,,120,GH stack; synergistic GH pulse research
+CI-10/10,Blend CJC-1295 + Ipamorelin,10mg+10mg / 3ml,28.8,41.25,,195,Standard GH blend; body composition and recovery research
+SS-5/5,Blend Selank + Semax,5mg+5mg / 3ml,10.2,14.61,,95,Nootropic-anxiolytic stack; mood and cognition research
+SS-10/10,Blend Selank + Semax,10mg+10mg / 3ml,18.6,26.64,,145,Standard selank/semax; neuroprotection research
+SS-15/15,Blend Selank + Semax,15mg+15mg / 3ml,27.4,39.24,,195,High-dose neuro stack; advanced cognitive research
+TI-5/5,Blend Tesamorelin + Ipamorelin,5mg+5mg / 3ml,20.3,29.07,,155,GH fat-loss stack; visceral fat and GH research
+Y73-3,Sterile Normal Saline,3ml,0.5,0.72,,8,Reconstitution diluent; 0.9% sodium chloride
+Y73-10,Sterile Normal Saline,10ml,1.0,1.43,,12,Large-volume saline diluent
+Y74-3,Bacteriostatic Water,3ml,0.6,0.86,,10,Reconstitution diluent; 0.9% benzyl alcohol
+Y74-10,Bacteriostatic Water,10ml,1.1,1.58,,15,Standard BAC water for peptide reconstitution
+Y74-30,Bacteriostatic Water,30ml,3.5,5.01,,35,Large-volume BAC water for multi-vial protocols
