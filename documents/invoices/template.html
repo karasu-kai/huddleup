@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tax Invoice {{INVOICE_NUMBER}} — Karasu Kai</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    /*
+      Karasu Kai invoice template
+      Brand: karasukai.com.au — Syne / DM Mono, black + #c8102e
+
+      Placeholders (replace before sending):
+        {{INVOICE_NUMBER}}  e.g. KK-2026-001
+        {{ISSUE_DATE}}      e.g. 16 July 2026
+        {{DUE_DATE}}        e.g. 30 July 2026
+        {{CLIENT_NAME}}     e.g. TIAWGROUP
+        {{CLIENT_ADDRESS}}  optional extra lines (HTML allowed, use <br>)
+        {{LINE_ITEMS}}      one or more <tr> rows (see example below)
+        {{SUBTOTAL}}        e.g. $681.82
+        {{GST}}             e.g. $68.18
+        {{TOTAL}}           e.g. $750.00
+        {{BANK_NAME}}       optional bank name
+        {{PAYMENT_REF}}     usually same as invoice number
+
+      Example line item row:
+        <tr>
+          <td class="desc">Graphic design and 3,800 labels</td>
+          <td class="amt">$681.82</td>
+        </tr>
+    */
+
+    :root {
+      --black: #0d0d0d;
+      --off: #131313;
+      --g2: #2a2a2a;
+      --g3: #545454;
+      --g4: #888888;
+      --white: #f0f0f0;
+      --paper: #fafafa;
+      --red: #c8102e;
+      --line: #e6e6e6;
+      --line-dark: #1e1e1e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    body {
+      background: #e8e8e8;
+      color: var(--black);
+      font-family: "DM Mono", ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .sheet {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 24px auto;
+      background: var(--paper);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .topbar {
+      height: 6px;
+      background: var(--red);
+    }
+
+    .header {
+      background: var(--black);
+      color: var(--white);
+      padding: 36px 48px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 32px;
+    }
+
+    .brand-mark {
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .brand-mark sup {
+      font-size: 0.35em;
+      color: var(--red);
+      vertical-align: super;
+      margin-left: 0.06em;
+    }
+
+    .brand-sub {
+      margin-top: 10px;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--g4);
+    }
+
+    .doc-type {
+      text-align: right;
+    }
+
+    .doc-type .label {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+
+    .doc-type .title {
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+      font-size: 34px;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .body {
+      padding: 40px 48px 32px;
+      flex: 1;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 12px;
+    }
+
+    .from-block,
+    .to-block,
+    .dates-block {
+      color: var(--g3);
+    }
+
+    .from-block strong,
+    .to-block strong {
+      display: block;
+      color: var(--black);
+      font-family: Syne, sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .to-block .client {
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+
+    .dates {
+      margin-top: 28px;
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .date-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 12px;
+    }
+
+    .date-row span:first-child {
+      color: var(--g4);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 10px;
+      padding-top: 2px;
+    }
+
+    .date-row span:last-child {
+      color: var(--black);
+      font-weight: 500;
+    }
+
+    table.lines {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+    }
+
+    table.lines thead th {
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--g4);
+      padding: 0 0 14px;
+      border-bottom: 1px solid var(--black);
+      font-weight: 400;
+    }
+
+    table.lines thead th.amt {
+      text-align: right;
+    }
+
+    table.lines tbody td {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      color: var(--black);
+    }
+
+    table.lines tbody td.desc {
+      font-size: 13px;
+      padding-right: 24px;
+    }
+
+    table.lines tbody td.amt {
+      text-align: right;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .totals {
+      margin-top: 8px;
+      margin-left: auto;
+      width: 280px;
+    }
+
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 8px 0;
+      color: var(--g3);
+    }
+
+    .totals .row.total {
+      margin-top: 6px;
+      padding-top: 14px;
+      border-top: 2px solid var(--black);
+      color: var(--black);
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .totals .row.total .value {
+      color: var(--red);
+    }
+
+    .payment {
+      margin-top: 40px;
+      padding: 24px;
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .payment .section-label {
+      color: var(--red);
+      margin-bottom: 16px;
+    }
+
+    .pay-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 8px 16px;
+    }
+
+    .pay-grid .k {
+      color: var(--g4);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding-top: 2px;
+    }
+
+    .pay-grid .v {
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    .pay-note {
+      margin-top: 16px;
+      font-size: 10px;
+      color: var(--g4);
+      letter-spacing: 0.04em;
+    }
+
+    .footer {
+      margin-top: auto;
+      padding: 20px 48px 28px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      color: var(--g4);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    .footer a {
+      color: var(--g3);
+      text-decoration: none;
+    }
+
+    @media print {
+      body { background: white; }
+      .sheet {
+        margin: 0;
+        box-shadow: none;
+        width: 100%;
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="topbar"></div>
+
+    <header class="header">
+      <div>
+        <div class="brand-mark">Karasu Kai<sup>®</sup></div>
+        <div class="brand-sub">Web &amp; App Development Studio</div>
+      </div>
+      <div class="doc-type">
+        <div class="label">Tax Invoice</div>
+        <div class="title">Invoice</div>
+      </div>
+    </header>
+
+    <main class="body">
+      <div class="meta-grid">
+        <div>
+          <div class="section-label">From</div>
+          <div class="from-block">
+            <strong>Anzu Co Pty Ltd</strong>
+            t/a Karasu Kai Web and App Dev<br />
+            Suite 2281, 1/55 Railway Tce<br />
+            Milton, QLD 4064<br />
+            ABN 88 696 793 049<br />
+            Phone 0468 313 008
+          </div>
+
+          <div class="dates">
+            <div class="date-row">
+              <span>Invoice</span>
+              <span>{{INVOICE_NUMBER}}</span>
+            </div>
+            <div class="date-row">
+              <span>Date</span>
+              <span>{{ISSUE_DATE}}</span>
+            </div>
+            <div class="date-row">
+              <span>Due</span>
+              <span>{{DUE_DATE}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Bill to</div>
+          <div class="to-block">
+            <div class="client">{{CLIENT_NAME}}</div>
+            {{CLIENT_ADDRESS}}
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Description of services</div>
+      <table class="lines">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th class="amt">Amount (AUD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{LINE_ITEMS}}
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <div class="row">
+          <span>Subtotal</span>
+          <span>{{SUBTOTAL}}</span>
+        </div>
+        <div class="row">
+          <span>GST (10%)</span>
+          <span>{{GST}}</span>
+        </div>
+        <div class="row total">
+          <span>Total</span>
+          <span class="value">{{TOTAL}}</span>
+        </div>
+      </div>
+
+      <section class="payment">
+        <div class="section-label">Payment details</div>
+        <div class="pay-grid">
+          <div class="k">Bank</div>
+          <div class="v">{{BANK_NAME}}</div>
+          <div class="k">Account name</div>
+          <div class="v">Anzu Co Pty Ltd</div>
+          <div class="k">BSB</div>
+          <div class="v">484 799</div>
+          <div class="k">Account</div>
+          <div class="v">483 167 372</div>
+          <div class="k">Reference</div>
+          <div class="v">{{PAYMENT_REF}}</div>
+        </div>
+        <p class="pay-note">Please include the payment reference so we can allocate your payment.</p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Anzu Co Pty Ltd · GST registered</span>
+      <a href="https://karasukai.com.au">karasukai.com.au</a>
+    </footer>
+  </div>
+</body>
+</html>
