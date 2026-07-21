@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tax Invoice ANZU-2026-001 — Anzu Co Pty Ltd</title>
+  <style>
+    :root {
+      --ink: #111111;
+      --muted: #666666;
+      --line: #dddddd;
+      --paper: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @page { size: A4; margin: 0; }
+
+    body {
+      background: #eee;
+      color: var(--ink);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .sheet {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 24px auto;
+      background: var(--paper);
+      padding: 48px 52px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 28px rgba(0,0,0,.1);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 32px;
+      padding-bottom: 28px;
+      border-bottom: 2px solid var(--ink);
+      margin-bottom: 32px;
+    }
+
+    .brand h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .brand p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .doc {
+      text-align: right;
+    }
+
+    .doc h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    .doc dl {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 4px 16px;
+      justify-content: end;
+      font-size: 12px;
+    }
+
+    .doc dt { color: var(--muted); }
+    .doc dd { margin: 0; font-weight: 600; text-align: right; }
+
+    .parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 36px;
+    }
+
+    .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .parties .name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 0 0 12px;
+      border-bottom: 1px solid var(--ink);
+      font-weight: 600;
+    }
+
+    thead th.amt,
+    tbody td.amt,
+    tfoot td.amt {
+      text-align: right;
+    }
+
+    tbody td {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    tbody td.desc strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    tbody td.desc span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    tfoot td {
+      padding: 8px 0;
+    }
+
+    tfoot tr.total td {
+      padding-top: 14px;
+      border-top: 2px solid var(--ink);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .payment {
+      margin-top: 36px;
+      padding: 20px 22px;
+      border: 1px solid var(--line);
+      background: #f7f7f7;
+    }
+
+    .payment .label { margin-bottom: 12px; }
+
+    .pay-grid {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 6px 12px;
+      font-size: 13px;
+    }
+
+    .pay-grid .k { color: var(--muted); }
+    .pay-grid .v { font-weight: 600; }
+
+    .note {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media print {
+      body { background: white; }
+      .sheet { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <header>
+      <div class="brand">
+        <h1>Anzu Co Pty Ltd</h1>
+        <p>
+          Suite 2281, 1/55 Railway Tce<br />
+          Milton, QLD 4064<br />
+          ABN 88 696 793 049<br />
+          Phone 0468 313 008
+        </p>
+      </div>
+      <div class="doc">
+        <h2>TAX INVOICE</h2>
+        <dl>
+          <dt>Invoice no.</dt>
+          <dd>ANZU-2026-001</dd>
+          <dt>Issue date</dt>
+          <dd>21 July 2026</dd>
+          <dt>Due date</dt>
+          <dd>4 August 2026</dd>
+        </dl>
+      </div>
+    </header>
+
+    <section class="parties">
+      <div>
+        <div class="label">Bill to</div>
+        <div class="name">[Client name]</div>
+      </div>
+      <div>
+        <div class="label">Currency</div>
+        <p>AUD · Amounts include GST where applicable</p>
+      </div>
+    </section>
+
+    <div class="label">Description</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="amt">Amount (AUD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="desc">
+            <strong>Skincare products — 1,500 units</strong>
+            <span>Sovereign brand customisation</span>
+          </td>
+          <td class="amt">$8,522.73</td>
+        </tr>
+        <tr>
+          <td class="desc">
+            <strong>Air freight</strong>
+            <span>International air freight</span>
+          </td>
+          <td class="amt">$1,818.18</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table>
+      <tfoot>
+        <tr>
+          <td>Subtotal (ex GST)</td>
+          <td class="amt">$10,340.91</td>
+        </tr>
+        <tr>
+          <td>GST (10%)</td>
+          <td class="amt">$1,034.09</td>
+        </tr>
+        <tr class="total">
+          <td>Total due (inc GST)</td>
+          <td class="amt">$11,375.00</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <section class="payment">
+      <div class="label">Payment details</div>
+      <div class="pay-grid">
+        <div class="k">Account name</div>
+        <div class="v">Anzu Co Pty Ltd</div>
+        <div class="k">BSB</div>
+        <div class="v">484 799</div>
+        <div class="k">Account</div>
+        <div class="v">483 167 372</div>
+        <div class="k">Reference</div>
+        <div class="v">ANZU-2026-001</div>
+      </div>
+      <p class="note">Please include the payment reference so we can allocate your payment.</p>
+    </section>
+
+    <footer>
+      This is a tax invoice for GST purposes. Anzu Co Pty Ltd is registered for GST (ABN 88 696 793 049).
+      Line amounts are exclusive of GST; quoted package totals were $9,375.00 and $2,000.00 inclusive of GST.
+    </footer>
+  </div>
+</body>
+</html>
